@@ -2,13 +2,36 @@ language: csharp
 mono: none
 dotnet: 2.0.0
 dist: trusty
+env:
+  matrix:
+  global:
+    - secure: elJN13+I6JQb91gP7dWDsgdQaiQfSnbxSAVZKEojZUjeL1M2HvJdHWCYU7YLBXHAFOAGCRdJyAQxK4iOtfWJ7aAHpLTM6pK6sqGV2abAJqhUkLiuujVIH4sTc70rq+yranOUyd24Ur8rHznIaElenHCz/NDXpbJrmK7fxfqwcY1zUMiiKFfyv4y1wC0jpfPwbMgFDYVRgHhCK+O3hMfMZQ5tKdlvqwL+bYNI3Zk01sJeRTx52jGRcifyeIG9JqMwO6eLCnqsIJn21x1w81/dwURdf7F9ZdvGvf5FSY9RRJjDMMPSmSY+bZGicKKaPMQVruiOY3hysnCL7UFCZ/ssuwnL8M3V5IyMkX7OLJR4pzltSQQhLtaefNFszjSwlFvs/LyZfe3Ajyl8LcAQnApfrSLlEuWfJxZyXgsZuZcsehl1a0rWTUn9vdQMfOBOBEA5RFMsMO+3q5hLJzyrs2R2AVtMop/75iSev+pJ7CPUq/O04o51QO6Bww22LlKploip+M4TKGUAUsje/rGxvNega6Lr3AM1k2nEjwJlbunaXzQcHkgD37UcHl2pi7U1VcJR7Qm8bgR/UQqeTjbtPJrw9thfNY0wkKV74e6fqRDIViId5LbvTbnY8DTO5cFkAeR3Al7cIXZLCmAOxmveL/XFPZUE6R5wz5YF14LLf7uWzC0=
+    - AZ_AD_SP_ID=http://azure-cli-2017-08-26-18-59-28
+    - AZ_AD_TENANT=46947e84-c7c5-4572-bf44-0c0b2d9013b8
+    - AZ_LOCATION=eastus
+    - AZ_RG_BUILD=music-bot-build
+    - AZ_RG_DEV=music-bot-dev
+    - AZ_RG_INT_PREFIX=music-bot-int-
+    - AZ_RG_PROD=music-bot-prod
 before_install:
-  - sudo apt-get -y install python3-pip python-dev
-  - echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ wheezy main" | sudo tee /etc/apt/sources.list.d/azure-cli.list
-  - sudo apt-key adv --keyserver packages.microsoft.com --recv-keys 417A0893
-  - sudo apt-get install apt-transport-https
-  - sudo apt-get update && sudo apt-get install azure-cli
-  - az login --service-principal -u $AZ_AD_SP_ID -p $AZ_AD_SP_PASS -t $AZ_AD_TENANT
+- sudo apt-get -y install python3-pip python-dev
+- echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ wheezy main"
+  | sudo tee /etc/apt/sources.list.d/azure-cli.list
+- sudo apt-key adv --keyserver packages.microsoft.com --recv-keys 417A0893
+- sudo apt-get install apt-transport-https
+- sudo apt-get update -qq
+- sudo apt-get install azure-cli
+- az login --service-principal -u $AZ_AD_SP_ID -p $AZ_AD_SP_PASS -t $AZ_AD_TENANT
 script:
-  # Validate ARM Template
-  - scripts/build-arm.sh -g $AZ_RESOURCE_GROUP_NAME -v -l $AZ_LOCATION -a src/arm
+
+# Validate
+- scripts/build-arm.sh -g $AZ_RG_BUILD-$ -v -l $AZ_LOCATION -a src/arm
+
+# Deploy to integration environment
+- scripts/build-arm.sh -g $AZ_RG_BUILD-$ -l $AZ_LOCATION -a src/arm
+deploy:
+- provider: script
+  script: scripts/az-group-deploy.sh -g $AZ_RG_DEV -l $AZ_LOCATION -a src/arm
+  on:
+    branch: master
+- provider: 
