@@ -16,7 +16,7 @@ env:
 before_install:
 # Inspiration: https://github.com/TFaga/modern-art-ui/blob/master/.travis.yml
 # Install Azure CLI - Only on non-PRs
-- ./scripts/travis-build.sh
+- ./scripts/configure-azure-cli.sh
 script:
 # Run Integration Tests - Only on non-PRs
 - ./scripts/integration-test.sh
