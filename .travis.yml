@@ -23,10 +23,15 @@ before_install:
 - sudo apt-get install azure-cli
 - az login --service-principal -u $AZ_AD_SP_ID -p $AZ_AD_SP_PASS -t $AZ_AD_TENANT
 script:
-- scripts/az-group-deploy.sh -g $AZ_RG_BUILD-$TRAVIS_BUILD_NUMBER -l $AZ_LOCATION -a src/arm -v
-- scripts/az-group-deploy.sh -g $AZ_RG_BUILD-$TRAVIS_BUILD_NUMBER -l $AZ_LOCATION -a src/arm
+- scripts/az-group-deploy.sh -g $AZ_RG_BUILD-$TRAVIS_BUILD_NUMBER -l $AZ_LOCATION
+  -a src/arm -v
+- scripts/az-group-deploy.sh -g $AZ_RG_BUILD-$TRAVIS_BUILD_NUMBER -l $AZ_LOCATION
+  -a src/arm
 deploy:
 - provider: script
   script: scripts/az-group-deploy.sh -g $AZ_RG_DEV -l $AZ_LOCATION -a src/arm
   on:
     branch: master
+notifications:
+  slack:
+    secure: b0m1mvBam5ika7DtHAyrobDMW+nmCAB/xmCBlgyxYqN0ko4UWU7UejkWULoNc16T3W5rl4acbsQJeJuh1WKIb0I1Vem65RMGN/eGVFWlm6Ijulp4p/bACyrEJdZ5su6FNo6oZE6Fo1OuijzAeRMTfLIvsCbkIzlM5sxmv47BTFva4lxXL+lDWoAQO9qhoC0RbWNTAPGYkX1uzC2MiriuxTvIv4rOgBN/38IV1Iss2/WYnfs9veyxj4rJIhY7Lyb1aYCdcwmFqThMwBN+zGaldYNFVjZqqAqOKZ4+fEo7srd/R1V3WUjJBDNSpTywwGRtRj2hdy2szv/YbUY5ZHrFKMwHNyFDsuCY+xDDK0MUsO1zVfdYun0ttzd13nuRgvUcrXKh4GMcY4Fj7wSBtITlr3KPCW8fbt4v7Sgy6DxwwFnjmtPfb7nj6EyTJpYwJBbXWTUsH8vVLcaPWBcqw2xIu0zYTD+AsVGm3UMYXx3K0yYJmLs5iubQiCLB6f/jzI/US5afUBPVyieyMEN1cwdV9U70llBUvO+Qya0zVAWyYRxeLDig34PABc8duskVVjC4RO4+YDIvtnhb4N1kK0EfIAax4hyw2BJKj4gmtvKB1YIognmmBOHycNd4thUqnH3ye+X6mDpJjmg180oyOU2zdkdbUzMqwVHpuQKZw2OXEx8=
