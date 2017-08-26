@@ -8,5 +8,7 @@ before_install:
   - sudo apt-key adv --keyserver packages.microsoft.com --recv-keys 417A0893
   - sudo apt-get install apt-transport-https
   - sudo apt-get update && sudo apt-get install azure-cli
+  - az login --service-principal -u $AZ_AD_SP_ID -p $AZ_AD_SP_PASS
 script:
-  - echo "Passed"
+  # Validate ARM Template
+  - scripts/build-arm.sh -g $AZ_RESOURCE_GROUP_NAME -v -l $AZ_LOCATION -a src/arm
