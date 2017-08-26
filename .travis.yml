@@ -23,11 +23,10 @@ before_install:
 - sudo apt-get install azure-cli
 - az login --service-principal -u $AZ_AD_SP_ID -p $AZ_AD_SP_PASS -t $AZ_AD_TENANT
 script:
-- scripts/build-arm.sh -g $AZ_RG_BUILD-$ -v -l $AZ_LOCATION -a src/arm
-- scripts/build-arm.sh -g $AZ_RG_BUILD-$ -l $AZ_LOCATION -a src/arm
+- scripts/az-group-deploy.sh -g $AZ_RG_BUILD-$TRAVIS_BUILD_NUMBER -l $AZ_LOCATION -a src/arm -v
+- scripts/az-group-deploy.sh -g $AZ_RG_BUILD-$TRAVIS_BUILD_NUMBER -l $AZ_LOCATION -a src/arm
 deploy:
 - provider: script
   script: scripts/az-group-deploy.sh -g $AZ_RG_DEV -l $AZ_LOCATION -a src/arm
   on:
     branch: master
-- provider: 
