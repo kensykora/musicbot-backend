@@ -23,7 +23,22 @@ before_install:
   sudo apt-get install azure-cli;
   az login --service-principal -u $AZ_AD_SP_ID -p $AZ_AD_SP_PASS -t $AZ_AD_TENANT;
   fi
+- npm i -g azure-functions-core-tools@core
+- npm i -g newman
 script:
+# Build .Net Class Lib
+- dotnet build src/app
+
+# Start function app for testing
+- pushd src/func
+- func host start &
+- popd
+
+# Run integration tests, then kill the functions app
+- newman run test/func/MusicBot.postman_collection.json -e test/func/localhost.postman_environment.json
+- pgrep dotnet | xargs kill
+
+# Run azure deployment tests if not a PR
 - if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then 
   scripts/az-group-deploy.sh -g $AZ_RG_BUILD-$TRAVIS_BUILD_NUMBER -l $AZ_LOCATION -a src/arm;
   fi

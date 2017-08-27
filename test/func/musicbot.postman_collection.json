@@ -1,0 +1,51 @@
+{
+	"variables": [],
+	"info": {
+		"name": "musicbot",
+		"_postman_id": "45ae30e1-71be-f0de-44a4-2ba74419b832",
+		"description": "",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "PlaySong",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"tests[\"Body matches string\"] = responseBody.has(\"Hello, test\");"
+						]
+					}
+				}
+			],
+			"request": {
+				"url": {
+					"raw": "{{BaseUrl}}/api/PlaySong?name=test",
+					"host": [
+						"{{BaseUrl}}"
+					],
+					"path": [
+						"api",
+						"PlaySong"
+					],
+					"query": [
+						{
+							"key": "name",
+							"value": "test",
+							"equals": true,
+							"description": ""
+						}
+					],
+					"variable": []
+				},
+				"method": "GET",
+				"header": [],
+				"body": {},
+				"description": ""
+			},
+			"response": []
+		}
+	]
+}
