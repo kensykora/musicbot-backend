@@ -15,10 +15,10 @@ env:
   - AZ_RG_PROD=music-bot-prod
   - secure: TbWOwjJ9LWargkmzKQ5D26mRctfGwk+SQeDqPfTS3GcsyTT5yuudVy99qhObnorccyJPYrUcxpsWLTSuqSy7oqNp3eUs6jinJRui8Yc8+Ml6/Vx0dGxbE3vfx6rxk49cM2RxRouhP3AjcExfGKQe+oPlxs2ufvz9N/2+lxZTuM7nnU4HMA6o1FyBrADYWbDpGif5eO+jq8RjNJGJ7tK/p9TwIpu5Wxny6IP5vc/w7nwG5brmEhoSxm0T3c3IUWxI23RByZ9GNAXlDKzRLRN8LwlyrOlWn4pUX33bW5puotEeabb50lIBvU4X5MhhnryxJEbZHhGk95aYtxT11ERZCSGgktJdH6yLT9/ObTFPfaCFjYmIRxfsRGVXt0iFNAxHRjLI8OKIDFGQ+hBTjap3/l9K+HeSbnZJRSVHRasaf7KiF4YurWMjzmFEYHEjgcwJcNimWDl+841ClBHJGe7yCtLNtjgrkmpvwBrzSU9C0UwfJ6wOKHdLgEkOKDY4aZEHYeaFfQuc4KKZP4Q2rGghczNQg7wpEofI4NFIJLRpl/R3vQtWHJ04mcB7AghtqjMToPh5eDbS8zFDlww9o4+qEg3mhhGI21zlE2qnd0MFvYMoQE7iAu5wS/2A6YBoB1435o8XBV9no3NhRKSDbowdH2DGGpGm40Hg4lBNtAoVWTI=
 before_install:
-- 'if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then bash ./scripts/configure-azure-cli.sh; fi'
+- 'if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then ./scripts/configure-azure-cli.sh; fi'
 - 'if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then az login --service-principal -u $AZ_AD_SP_ID -p $AZ_AD_SP_PASS -t $AZ_AD_TENANT; fi'
 script:
-- 'if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then bash ./scripts/integration-test.sh; fi'
+- 'if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then ./scripts/integration-test.sh; fi'
 after_script:
 - 'if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then az group delete -n $AZ_RG_BUILD-$TRAVIS_BUILD_NUMBER; fi'
 before_deploy:
