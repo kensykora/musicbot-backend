@@ -1,3 +1,2 @@
 [config]
-project = src/func
-command = scripts/funcdeploy.cmd
+command = scripts/funcdeploy.cmd src/func
