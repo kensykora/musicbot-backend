@@ -1,5 +1,6 @@
 #!/bin/bash -e
-while getopts "a:l:g:s:f:e:uv" opt; do
+# Gently lifted from https://github.com/azure/azure-quickstart-templates/blob/master/az-group-deploy.sh
+while getopts "a:l:g:s:f:e:p:uv" opt; do
     case $opt in
         a)
             artifactsStagingDirectory=$OPTARG #the folder or sample to deploy
@@ -25,10 +26,18 @@ while getopts "a:l:g:s:f:e:uv" opt; do
         v)
             validateOnly='true'
         ;;
+        p)
+            resourcePrefix=$OPTARG #resource prefix to use for the deployment. Optional, will use parameters file if not specified.
+        ;;
     esac
 done
     
 [[ $# -eq 0 || -z $artifactsStagingDirectory || -z $location ]] && { echo "Usage: $0 <-a foldername> <-l location> [-e parameters-file] [-g resource-group-name] [-u] [-s storageAccountName] [-v]"; exit 1; }
+
+if [[ -z $resourcePrefix ]]
+then
+    resourcePrefix=$IONX_RESOURCE_PREFIX
+fi
 
 if [[ -z $templateFile ]]
 then
@@ -78,7 +87,7 @@ then
     artifactsStorageContainerName=$( echo "$artifactsStorageContainerName" | awk '{print tolower($0)}')
     
     artifactsStorageAccountKey=$( az storage account keys list -g "$artifactsResourceGroupName" -n "$artifactsStorageAccountName" -o json | jq -r '.[0].value' )
-    az storage container create -n "$artifactsStorageContainerName" --account-name "$artifactsStorageAccountName" --account-key "$artifactsStorageAccountKey" -o json >/dev/null 2>&1
+    az storage container create -n "$artifactsStorageContainerName" --account-name "$artifactsStorageAccountName" --account-key "$artifactsStorageAccountKey" >/dev/null 2>&1
     
     # Get a 4-hour SAS Token for the artifacts container. Fall back to OSX date syntax if Linux syntax fails.
     plusFourHoursUtc=$(date -u -v+4H +%Y-%m-%dT%H:%MZ 2>/dev/null)  || plusFourHoursUtc=$(date -u --date "$dte 4 hour" +%Y-%m-%dT%H:%MZ)
@@ -87,16 +96,31 @@ then
 
     blobEndpoint=$( az storage account show -n "$artifactsStorageAccountName" -g "$artifactsResourceGroupName" -o json | jq -r '.primaryEndpoints.blob' )
 
-    parameterJson=$( echo "$parameterJson"  | jq "{_artifactsLocation: {value: "\"$blobEndpoint$artifactsStorageContainerName"\"}, _artifactsLocationSasToken: {value: \"?"$sasToken"\"}} + ." )
+    if [[ -z $resourcePrefix ]]
+    then
+        parameterJson=$( echo "$parameterJson"  | jq "{_artifactsLocation: {value: "\"$blobEndpoint$artifactsStorageContainerName"\"}, _artifactsLocationSasToken: {value: \"?"$sasToken"\"}} + ." )    
+    else
+        parameterJson=$( echo "$parameterJson"  | jq "{resourcePrefix: {value: "\"$resourcePrefix"\"}, _artifactsLocation: {value: "\"$blobEndpoint$artifactsStorageContainerName"\"}, _artifactsLocationSasToken: {value: \"?"$sasToken"\"}} + ." )    
+    fi
+    
 
     artifactsStagingDirectory=$( echo "$artifactsStagingDirectory" | sed 's/\/*$//')
     artifactsStagingDirectoryLen=$((${#artifactsStagingDirectory} + 1))
 
-    for filepath in $( find "$artifactsStagingDirectory" -type f )
+    #Deploy _*.json linked templates
+    for filepath in $( find -E "$artifactsStagingDirectory" -regex ".*_.*\.json" )
     do
         relFilePath=${filepath:$artifactsStagingDirectoryLen}
         echo "Uploading file $relFilePath..."
-        az storage blob upload -f $filepath --container $artifactsStorageContainerName -n $relFi    lePath --account-name "$artifactsStorageAccountName" --account-key "$artifactsStorageAccountKey" --verbose -o json
+        az storage blob upload -f $filepath --container $artifactsStorageContainerName -n $relFilePath --account-name "$artifactsStorageAccountName" --account-key "$artifactsStorageAccountKey" --verbose
+    done 
+
+    #Deploy *.zip files
+    for filepath in $( find -E "$artifactsStagingDirectory/dsc" -regex ".*\.zip" )
+    do
+        relFilePath=${filepath:$artifactsStagingDirectoryLen}
+        echo "Uploading file $relFilePath..."
+        az storage blob upload -f $filepath --container $artifactsStorageContainerName -n $relFilePath --account-name "$artifactsStorageAccountName" --account-key "$artifactsStorageAccountKey" --verbose
     done 
 fi
 
@@ -109,5 +133,6 @@ if [[ $validateOnly ]]
 then
     az group deployment validate -g "$resourceGroupName" --template-file $templateFile --parameters "$parameterJson" --verbose -o json
 else
-    az group deployment create -g "$resourceGroupName" -n AzureRMSamples --template-file $templateFile --parameters "$parameterJson" --verbose         -o json
+    currentDate=$(date -u +%Y-%m-%dT%H%MZ 2>/dev/null)  || plusFourHoursUtc=$(date -u +%Y-%m-%dT%H%MZ)
+    az group deployment create -g "$resourceGroupName" -n "$resourceGroupName$currentDate" --template-file $templateFile --parameters "$parameterJson" --verbose -o json
 fi

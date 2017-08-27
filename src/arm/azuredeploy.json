@@ -4,12 +4,97 @@
     "parameters": {
         "resourcePrefix": {
            "type": "string",
+           "minLength": 1,
            "metadata": {
                 "description": "Prefix for the resource"
             }
+        },
+        "_artifactsLocation": {
+            "type": "string",
+            "defaultValue": "",
+            "metadata": {
+                "description": "The base URI where artifacts required by this template are located"
+            }
+        },
+        "_artifactsLocationSasToken": {
+            "type": "securestring",
+            "defaultValue": "",
+            "metadata": {
+                "description": "The sasToken required to access _artifactsLocation.  When the template is deployed using the accompanying scripts, a sasToken will be automatically generated"
+            }
         }
     },
-    "variables": {},
-    "resources": [],
+    "variables": {
+        "appServiceName": "[concat(parameters('resourcePrefix'), '-APP')]",
+        "storageName": "[replace(toLower(concat(parameters('resourcePrefix'), '-STG')),'-','')]",
+        "insightsName": "[concat(parameters('resourcePrefix'), '-INS')]"
+    },
+    "resources": [
+        {
+            "name": "[variables('appServiceName')]",
+            "type": "Microsoft.Web/sites",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('storageName'))]",
+                "[resourceId('microsoft.insights/components/', variables('insightsName'))]"
+            ],
+            "properties": {
+                "siteConfig": {
+                    "appSettings": [
+                        {
+                            "name": "AzureWebJobsDashboard",
+                            "value": "[concat('DefaultEndpointsProtocol=https;AccountName=',variables('storageName'),';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageName')), '2015-05-01-preview').key1)]"
+                        },
+                        {
+                            "name": "AzureWebJobsStorage",
+                            "value": "[concat('DefaultEndpointsProtocol=https;AccountName=',variables('storageName'),';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageName')), '2015-05-01-preview').key1)]"
+                        },
+                        {
+                            "name": "FUNCTIONS_EXTENSION_VERSION",
+                            "value": "~1"
+                        },
+                        {
+                            "name": "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING",
+                            "value": "[concat('DefaultEndpointsProtocol=https;AccountName=',variables('storageName'),';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageName')), '2015-05-01-preview').key1)]"
+                        },
+                        {
+                            "name": "WEBSITE_CONTENTSHARE",
+                            "value": "[concat(toLower(variables('appServiceName')), '9de6')]"
+                        },
+                        {
+                            "name": "WEBSITE_NODE_DEFAULT_VERSION",
+                            "value": "6.5.0"
+                        },
+                        {
+                            "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
+                            "value": "[reference(resourceId('microsoft.insights/components/', variables('insightsName')), '2015-05-01').InstrumentationKey]"
+                        }
+                    ]
+                },
+                "name": "[variables('appServiceName')]",
+                "clientAffinityEnabled": false
+            },
+            "apiVersion": "2016-03-01",
+            "location": "[resourceGroup().location]",
+            "kind": "functionapp"
+        },
+        {
+            "apiVersion": "2015-05-01-preview",
+            "type": "Microsoft.Storage/storageAccounts",
+            "name": "[variables('storageName')]",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "accountType": "Standard_LRS"
+            }
+        },
+        {
+            "apiVersion": "2015-05-01",
+            "name": "[variables('insightsName')]",
+            "type": "microsoft.insights/components",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "ApplicationId": "[variables('appServiceName')]"
+            }
+        }
+    ],
     "outputs": {}
 }
