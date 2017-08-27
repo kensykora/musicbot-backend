@@ -25,14 +25,14 @@ before_install:
   fi
 script:
 - if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then 
-  scripts/az-group-deploy.sh -g $AZ_RG_BUILD-$TRAVIS_BUILD_NUMBER -p $AZ_RG_BUILD-$TRAVIS_BUILD_NUMBER -l $AZ_LOCATION -a src/arm;
+  scripts/az-group-deploy.sh -g $AZ_RG_BUILD-$TRAVIS_BUILD_NUMBER -l $AZ_LOCATION -a src/arm;
   fi
 after_script:
 - if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then az group delete -y --no-wait -n $AZ_RG_BUILD-$TRAVIS_BUILD_NUMBER; fi
 deploy:
 # Deploy passing master builds to dev
 - provider: script
-  script: scripts/az-group-deploy.sh -g $AZ_RG_DEV -p $AZ_RG_BUILD-$TRAVIS_BUILD_NUMBER -l $AZ_LOCATION -a src/arm
+  script: scripts/az-group-deploy.sh -g $AZ_RG_DEV -l $AZ_LOCATION -a src/arm
   on:
     branch: master
 # Deploy to prod on git tag 'current-prod'

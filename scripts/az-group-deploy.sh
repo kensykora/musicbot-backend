@@ -96,14 +96,8 @@ then
 
     blobEndpoint=$( az storage account show -n "$artifactsStorageAccountName" -g "$artifactsResourceGroupName" -o json | jq -r '.primaryEndpoints.blob' )
 
-    if [[ -z $resourcePrefix ]]
-    then
-        parameterJson=$( echo "$parameterJson"  | jq "{_artifactsLocation: {value: "\"$blobEndpoint$artifactsStorageContainerName"\"}, _artifactsLocationSasToken: {value: \"?"$sasToken"\"}} + ." )    
-    else
-        parameterJson=$( echo "$parameterJson"  | jq "{resourcePrefix: {value: "\"$resourcePrefix"\"}, _artifactsLocation: {value: "\"$blobEndpoint$artifactsStorageContainerName"\"}, _artifactsLocationSasToken: {value: \"?"$sasToken"\"}} + ." )    
-    fi
+    parameterJson=$( echo "$parameterJson"  | jq "{resourcePrefix: {value: "\"$resourcePrefix"\"}, _artifactsLocation: {value: "\"$blobEndpoint$artifactsStorageContainerName"\"}, _artifactsLocationSasToken: {value: \"?"$sasToken"\"}} + ." )    
     
-
     artifactsStagingDirectory=$( echo "$artifactsStagingDirectory" | sed 's/\/*$//')
     artifactsStagingDirectoryLen=$((${#artifactsStagingDirectory} + 1))
 
@@ -122,6 +116,8 @@ then
         echo "Uploading file $relFilePath..."
         az storage blob upload -f $filepath --container $artifactsStorageContainerName -n $relFilePath --account-name "$artifactsStorageAccountName" --account-key "$artifactsStorageAccountKey" --verbose
     done 
+else
+    parameterJson=$( echo "$parameterJson"  | jq "{resourcePrefix: {value: "\"$resourcePrefix"\"}} + ." )    
 fi
 
 az group create -n "$resourceGroupName" -l "$location"
