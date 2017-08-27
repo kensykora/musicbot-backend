@@ -36,7 +36,7 @@ done
 
 if [[ -z $resourcePrefix ]]
 then
-    resourcePrefix=$IONX_RESOURCE_PREFIX
+    resourcePrefix=$resourceGroupName
 fi
 
 if [[ -z $templateFile ]]
