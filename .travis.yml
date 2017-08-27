@@ -24,7 +24,7 @@ before_install:
 script:
 - if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then $TRAVIS_BUILD_DIR/scripts/integration-test.sh; fi
 after_script:
-- if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then az group delete -n $AZ_RG_BUILD-$TRAVIS_BUILD_NUMBER; fi
+- if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then az group delete -y --no-wait -n $AZ_RG_BUILD-$TRAVIS_BUILD_NUMBER; fi
 deploy:
 # Deploy passing master builds to dev
 - provider: script
