@@ -21,6 +21,9 @@ script:
 - 'if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then bash ./scripts/integration-test.sh; fi'
 after_script:
 - 'if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then az group delete -n $AZ_RG_BUILD-$TRAVIS_BUILD_NUMBER; fi'
+before_deploy:
+- './scripts/configure-azure-cli.sh'
+- 'az login --service-principal -u $AZ_AD_SP_ID -p $AZ_AD_SP_PASS -t $AZ_AD_TENANT'
 deploy:
 # Deploy passing master builds to dev
 - provider: script
