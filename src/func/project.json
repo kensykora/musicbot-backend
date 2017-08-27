@@ -1,0 +1,10 @@
+{
+    "frameworks": {
+        "net46": {
+            "dependencies": {
+                "Microsoft.AspNetCore.Mvc": "2.0.0",
+                "Microsoft.Extensions.Primitives": "2.0.0"
+            }
+        }
+    }
+}
