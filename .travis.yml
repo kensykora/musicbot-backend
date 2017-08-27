@@ -35,7 +35,7 @@ script:
 - popd
 
 # Run integration tests, then kill the functions app
-- newman run test/func/MusicBot.postman_collection.json -e test/func/localhost.postman_environment.json
+- newman run test/func/musicbot.postman_collection.json -e test/func/localhost.postman_environment.json
 - pgrep dotnet | xargs kill
 
 # Run azure deployment tests if not a PR
