@@ -23,8 +23,8 @@ before_install:
   sudo apt-get install azure-cli;
   az login --service-principal -u $AZ_AD_SP_ID -p $AZ_AD_SP_PASS -t $AZ_AD_TENANT;
   fi
-- npm i -g azure-functions-core-tools@core
-- npm i -g newman
+- npm i -g azure-functions-core-tools@core --silent
+- npm i -g newman --silent
 script:
 # Build .Net Class Lib
 - dotnet build src/app
@@ -44,6 +44,7 @@ script:
   fi
 after_script:
 - pgrep dotnet | xargs kill # Kill functions app
+# Delete build resource group
 - if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then az group delete -y --no-wait -n $AZ_RG_BUILD-$TRAVIS_BUILD_NUMBER; fi
 deploy:
 # Deploy passing master builds to dev
