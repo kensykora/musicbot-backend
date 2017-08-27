@@ -35,6 +35,7 @@ script:
 - popd
 
 # Run integration tests, then kill the functions app
+- sleep 15 # wait for the function app to get going
 - newman run test/func/musicbot.postman_collection.json -e test/func/localhost.postman_environment.json
 
 # Run azure deployment tests if not a PR
