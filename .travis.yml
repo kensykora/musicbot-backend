@@ -36,13 +36,13 @@ script:
 
 # Run integration tests, then kill the functions app
 - newman run test/func/musicbot.postman_collection.json -e test/func/localhost.postman_environment.json
-- pgrep dotnet | xargs kill
 
 # Run azure deployment tests if not a PR
 - if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then 
   scripts/az-group-deploy.sh -g $AZ_RG_BUILD-$TRAVIS_BUILD_NUMBER -l $AZ_LOCATION -a src/arm;
   fi
 after_script:
+- pgrep dotnet | xargs kill # Kill functions app
 - if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then az group delete -y --no-wait -n $AZ_RG_BUILD-$TRAVIS_BUILD_NUMBER; fi
 deploy:
 # Deploy passing master builds to dev
