@@ -1,6 +1,6 @@
 version: 1.0.0.{build}
 environment:
-  AZ_AD_SP_ID: http://mb-service-account
+  AZ_AD_SP_ID: http://musicbotsvc
   AZ_AD_TENANT: 46947e84-c7c5-4572-bf44-0c0b2d9013b8
   AZ_AD_SP_PASS:
     secure: QBSDpMZyT8QNWCo1R8M6o7+Umvo61xZjMnRIAp2a/eM=
