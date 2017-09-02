@@ -26,5 +26,5 @@ deploy_script:
 artifacts:
   - path: src/arm
     name: ARM Templates
-  - path: MusicBot-Functions.zip
+  - path: src/func/MusicBot-Functions.zip
     name: Functions App
