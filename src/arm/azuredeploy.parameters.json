@@ -4,6 +4,9 @@
     "parameters": {
         "p1": {
             "value": ""
-        }
+        },
+      "resourcePrefix": {
+        "value": "MUSIC-BOT-DEV"
+      }
     }
 }

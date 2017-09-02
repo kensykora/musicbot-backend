@@ -30,9 +30,9 @@ script:
 
 # Run azure deployment tests if not a PR
 - if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then 
-  scripts/az-group-deploy.sh -g $AZ_RG_BUILD-$TRAVIS_BUILD_NUMBER -l $AZ_LOCATION -a src/arm;
+  src/arm/az-group-deploy.sh -g $AZ_RG_BUILD-$TRAVIS_BUILD_NUMBER -l $AZ_LOCATION -a src/arm;
   else
-  scripts/az-group-deploy.sh -g $AZ_RG_BUILD-$TRAVIS_BUILD_NUMBER -l $AZ_LOCATION -a src/arm -v;
+  src/arm/az-group-deploy.sh -g $AZ_RG_BUILD-$TRAVIS_BUILD_NUMBER -l $AZ_LOCATION -a src/arm -v;
   fi
 after_script:
 # Delete build resource group
@@ -40,12 +40,12 @@ after_script:
 deploy:
 # Deploy passing master builds to dev
 - provider: script
-  script: scripts/az-group-deploy.sh -g $AZ_RG_DEV -l $AZ_LOCATION -a src/arm
+  script: src/arm/az-group-deploy.sh -g $AZ_RG_DEV -l $AZ_LOCATION -a src/arm
   on:
     branch: master
 # Deploy to prod on git tag 'current-prod'
 - provider: script
-  script: scripts/az-group-deploy.sh -g $AZ_RG_PROD -l $AZ_LOCATION -a src/arm
+  script: src/arm/az-group-deploy.sh -g $AZ_RG_PROD -l $AZ_LOCATION -a src/arm
   on:
     condition: $TRAVIS_TAG = current-prod
     tags: true
