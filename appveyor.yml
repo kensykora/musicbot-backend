@@ -31,7 +31,7 @@ deploy:
       secure: 4YuhAwTFo/5yD/5s9yIqm4bTScD8K19sbKcKLgfO6d0SbOCE/Di0FwwNPhU2HA92GppbjPV3n+ml5rSJFLD4pg==
     ntlm: false
     remove_files: true
-	artifact: Functions App
+    artifact: Functions App
     on:
       branch: master
 artifacts:
