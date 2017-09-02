@@ -14,10 +14,9 @@ before_build:
   - ps: $cred = New-Object -TypeName pscredential –ArgumentList $env:AZ_AD_SP_ID, $pass
   - ps: Login-AzureRmAccount -Credential $cred -ServicePrincipal -TenantId $env:AZ_AD_TENANT
 build_script: 
-  - ps: ./src/arm/Deploy-AzureResourceGroup.ps1 -ArtifactStagingDirectory src/arm -ResourceGroupLocation $env:AZ_LOCATION -ResourceGroupName $env:AZ_RG_BUILD -ValidateOnly
   - msbuild MusicBot.Backend.sln /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
   - ps: ./src/arm/Deploy-AzureResourceGroup.ps1 -ArtifactStagingDirectory src/arm -ResourceGroupLocation $env:AZ_LOCATION -ResourceGroupName $env:AZ_RG_INT_PREFIX$env:APPVEYOR_BUILD_NUMBER
 on_finish:
-  - ps: Remove-AzureRmResourceGroup -Name $env:AZ_RG_INT_PREFIX$env:APPVEYOR_BUILD_NUMBER
+  - ps: Remove-AzureRmResourceGroup -Name $env:AZ_RG_INT_PREFIX$env:APPVEYOR_BUILD_NUMBER -Force
 deploy_script:
   - ps: ./src/arm/Deploy-AzureResourceGroup.ps1 -ArtifactStagingDirectory src/arm -ResourceGroupLocation $env:AZ_LOCATION -ResourceGroupName $env:AZ_RG_DEV
