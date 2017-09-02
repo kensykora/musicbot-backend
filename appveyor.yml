@@ -1,4 +1,4 @@
-version: 1.0.{build}
+version: 1.0.0.{build}
 environment:
   AZ_AD_SP_ID: http://mb-service-account
   AZ_AD_TENANT: 46947e84-c7c5-4572-bf44-0c0b2d9013b8
@@ -11,7 +11,7 @@ environment:
   AZ_RG_PROD: MUSIC-BOT-PROD
 before_build:
   - ps: $pass = ConvertTo-SecureString $env:AZ_AD_SP_PASS -AsPlainText -Force
-  - ps: $cred = New-Object -TypeName pscredential –ArgumentList '$env:AZ_AD_SP_ID', $pass
+  - ps: $cred = New-Object -TypeName pscredential –ArgumentList $env:AZ_AD_SP_ID, $pass
   - ps: Login-AzureRmAccount -Credential $cred -ServicePrincipal -TenantId $env:AZ_AD_TENANT
 build_script: 
   - ps: ./src/arm/Deploy-AzureResourceGroup.ps1 -ArtifactStagingDirectory src/arm -ResourceGroupLocation $env:AZ_LOCATION -ResourceGroupName $env:AZ_RG_BUILD -ValidateOnly
