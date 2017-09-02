@@ -104,7 +104,8 @@ if ($ValidateOnly) {
                                                                                   -TemplateParameterFile $TemplateParametersFile `
                                                                                   @OptionalParameters)
     if ($ErrorMessages) {
-        Write-Output '', 'Validation returned the following errors:', @($ErrorMessages), '', 'Template is invalid.'
+        Write-Error '', 'Validation returned the following errors:', @($ErrorMessages), '', 'Template is invalid.'
+		exit 1
     }
     else {
         Write-Output '', 'Template is valid.'
@@ -119,6 +120,7 @@ else {
                                        -Force -Verbose `
                                        -ErrorVariable ErrorMessages
     if ($ErrorMessages) {
-        Write-Output '', 'Template deployment returned the following errors:', @(@($ErrorMessages) | ForEach-Object { $_.Exception.Message.TrimEnd("`r`n") })
+        Write-Error '', 'Template deployment returned the following errors:', @(@($ErrorMessages) | ForEach-Object { $_.Exception.Message.TrimEnd("`r`n") })
+		exit 1
     }
 }
