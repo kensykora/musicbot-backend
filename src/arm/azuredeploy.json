@@ -22,13 +22,6 @@
             "metadata": {
                 "description": "The sasToken required to access _artifactsLocation.  When the template is deployed using the accompanying scripts, a sasToken will be automatically generated"
             }
-        },
-        "p1": {
-           "type": "string",
-           "defaultValue": "",
-           "metadata": {
-                "description": "temp parameter"
-            }
         }
     },
     "variables": {
