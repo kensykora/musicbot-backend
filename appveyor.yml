@@ -1,3 +1,22 @@
 version: 1.0.{build}
-build:
-  verbosity: minimal
+environment:
+  AZ_AD_SP_ID: http://mb-service-account
+  AZ_AD_TENANT: 46947e84-c7c5-4572-bf44-0c0b2d9013b8
+  AZ_AD_SP_PASS:
+    secure: QBSDpMZyT8QNWCo1R8M6o7+Umvo61xZjMnRIAp2a/eM=
+  AZ_LOCATION: eastus
+  AZ_RG_BUILD: MUSIC-BOT-BUILD
+  AZ_RG_DEV: MUSIC-BOT-DEV
+  AZ_RG_INT_PREFIX: MUSIC-BOT-INT-
+  AZ_RG_PROD: MUSIC-BOT-PROD
+before_build:
+  - ps: $pass = ConvertTo-SecureString $env:AZ_AD_SP_PASS -AsPlainText -Force
+  - ps: $cred = New-Object -TypeName pscredential –ArgumentList '$env:AZ_AD_SP_ID', $pass
+  - ps: Login-AzureRmAccount -Credential $cred -ServicePrincipal -TenantId $env:AZ_AD_TENANT
+build_script: 
+  - ps: ./src/arm/Deploy-AzureResourceGroup.ps1 -ArtifactStagingDirectory src/arm -ResourceGroupLocation $env:AZ_LOCATION -ResourceGroupName $env:AZ_RG_BUILD -ValidateOnly
+  - msbuild MusicBot.Backend.sln /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
+on_finish:
+  - ps: Remove-AzureRmResourceGroup -Name $(AZ_RG_INT_PREFIX)$(APPVEYOR_BUILD_NUMBER)
+deploy_script:
+  - ps: ./src/arm/Deploy-AzureResourceGroup.ps1 -ArtifactStagingDirectory src/arm -ResourceGroupLocation $env:AZ_LOCATION -ResourceGroupName $env:AZ_RG_DEV

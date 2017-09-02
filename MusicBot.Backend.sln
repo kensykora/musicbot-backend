@@ -5,8 +5,6 @@ VisualStudioVersion = 15.0.26823.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MusicBot.Functions", "src\func\MusicBot.Functions.csproj", "{873C19BC-5DF2-4BB2-AD46-E96C048BCF9F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MusicBot.App", "src\app\MusicBot.App.csproj", "{CCDCEBC9-6663-4108-BD8C-8300F0E4FF81}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{D5C6FDAF-BEC1-4207-828E-1A9A952A98BB}"
 	ProjectSection(SolutionItems) = preProject
 		.gitignore = .gitignore
@@ -18,6 +16,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{D5C6FDAF
 EndProject
 Project("{151D2E53-A2C4-4D7D-83FE-D05416EBD58E}") = "MusicBot.Arm", "src\arm\MusicBot.Arm.deployproj", "{5988C502-85CB-4C7C-9BDF-18A8F0D26E4D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MusicBot.App", "app\MusicBot.App.csproj", "{73385F0A-74FC-4ECA-8992-BF3B1032FD7C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -28,14 +28,14 @@ Global
 		{873C19BC-5DF2-4BB2-AD46-E96C048BCF9F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{873C19BC-5DF2-4BB2-AD46-E96C048BCF9F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{873C19BC-5DF2-4BB2-AD46-E96C048BCF9F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{CCDCEBC9-6663-4108-BD8C-8300F0E4FF81}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{CCDCEBC9-6663-4108-BD8C-8300F0E4FF81}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{CCDCEBC9-6663-4108-BD8C-8300F0E4FF81}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{CCDCEBC9-6663-4108-BD8C-8300F0E4FF81}.Release|Any CPU.Build.0 = Release|Any CPU
 		{5988C502-85CB-4C7C-9BDF-18A8F0D26E4D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{5988C502-85CB-4C7C-9BDF-18A8F0D26E4D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5988C502-85CB-4C7C-9BDF-18A8F0D26E4D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5988C502-85CB-4C7C-9BDF-18A8F0D26E4D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{73385F0A-74FC-4ECA-8992-BF3B1032FD7C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{73385F0A-74FC-4ECA-8992-BF3B1032FD7C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{73385F0A-74FC-4ECA-8992-BF3B1032FD7C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{73385F0A-74FC-4ECA-8992-BF3B1032FD7C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
