@@ -16,6 +16,7 @@ before_build:
 build_script: 
   - ps: ./src/arm/Deploy-AzureResourceGroup.ps1 -ArtifactStagingDirectory src/arm -ResourceGroupLocation $env:AZ_LOCATION -ResourceGroupName $env:AZ_RG_BUILD -ValidateOnly
   - msbuild MusicBot.Backend.sln /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
+  - ps: ./src/arm/Deploy-AzureResourceGroup.ps1 -ArtifactStagingDirectory src/arm -ResourceGroupLocation $env:AZ_LOCATION -ResourceGroupName $env:AZ_RG_INT_PREFIX$env:APPVEYOR_BUILD_NUMBER
 on_finish:
   - ps: Remove-AzureRmResourceGroup -Name $env:AZ_RG_INT_PREFIX$env:APPVEYOR_BUILD_NUMBER
 deploy_script:
