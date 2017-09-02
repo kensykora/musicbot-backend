@@ -105,7 +105,7 @@ if ($ValidateOnly) {
                                                                                   @OptionalParameters)
     if ($ErrorMessages) {
         Write-Error '', 'Validation returned the following errors:', @($ErrorMessages), '', 'Template is invalid.'
-		exit 1
+		throw 'Failed'
     }
     else {
         Write-Output '', 'Template is valid.'
@@ -121,6 +121,6 @@ else {
                                        -ErrorVariable ErrorMessages
     if ($ErrorMessages) {
         Write-Error '', 'Template deployment returned the following errors:', @(@($ErrorMessages) | ForEach-Object { $_.Exception.Message.TrimEnd("`r`n") })
-		exit 1
+		throw 'Failed'
     }
 }
