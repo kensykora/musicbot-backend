@@ -11,6 +11,9 @@ notifications:
   - provider: Slack
     incoming_webhook:
       secure: MdVvSoK8ot0oaTh3xGuB2aPFuI64lu++kQAg0VYxdhsInJUIxOtZGwQng2wJLBMpNCl1NDnx+cooq8D945ICEe+/OsvKybd1rSWR6zPxqZA=
+    settings:
+      on_build_failure: true
+      on_build_status_changed: true
 environment:
   AZ_AD_SP_ID: http://musicbotsvc
   AZ_AD_TENANT: 46947e84-c7c5-4572-bf44-0c0b2d9013b8
