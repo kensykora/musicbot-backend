@@ -14,7 +14,7 @@ install:
   - npm install -g newman
 before_build:
   - ps: $pass = ConvertTo-SecureString $env:AZ_AD_SP_PASS -AsPlainText -Force
-  - ps: $cred = New-Object -TypeName pscredential �ArgumentList $env:AZ_AD_SP_ID, $pass
+  - ps: $cred = New-Object -TypeName pscredential -ArgumentList $env:AZ_AD_SP_ID, $pass
   - ps: Login-AzureRmAccount -Credential $cred -ServicePrincipal -TenantId $env:AZ_AD_TENANT
 build_script: 
   # Restore and build
