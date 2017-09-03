@@ -49,9 +49,8 @@ build_script:
   - ps: $wc = New-Object 'System.Net.WebClient'
   - ps: $wc.UploadFile("https://ci.appveyor.com/api/testresults/junit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path .\integration-test-results.xml))
 on_finish:
-  - ps: Start-Job -ScriptBlock { Remove-AzureRmResourceGroup -Name $env:AZ_RG_INT_PREFIX$env:APPVEYOR_BUILD_NUMBER -Force }
+  - Remove-AzureRmResourceGroup -Name $env:AZ_RG_INT_PREFIX$env:APPVEYOR_BUILD_NUMBER -Force
   - git push origin --delete %AZ_RG_INT_PREFIX%%APPVEYOR_BUILD_NUMBER%
-  - ps: Start-Sleep -s 10 # Wait for the script to trigger the call to azure
 artifacts:
   - path: src/arm
     name: ARM Templates
