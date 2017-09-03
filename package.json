@@ -1,0 +1,28 @@
+{
+  "name": "musicbot-backend",
+  "version": "1.0.0",
+  "description": "[![Build status](https://ci.appveyor.com/api/projects/status/343h8hq0wkymm42i?svg=true)](https://ci.appveyor.com/project/kensykora/musicbot-backend)",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "dependencies": {
+    "chakram": "^1.5.0"
+  },
+  "devDependencies": {
+    "chakram": "^1.5.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kensykora/musicbot-backend.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kensykora/musicbot-backend/issues"
+  },
+  "homepage": "https://github.com/kensykora/musicbot-backend#readme"
+}
