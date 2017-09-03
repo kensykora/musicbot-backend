@@ -15,32 +15,14 @@
 					"script": {
 						"type": "text/javascript",
 						"exec": [
-							"tests[\"Body matches string\"] = responseBody.has(\"Hello test\");"
+							"tests[\"Status code is 200\"] = responseCode.code === 200;"
 						]
 					}
 				}
 			],
 			"request": {
-				"url": {
-					"raw": "{{BaseUrl}}/api/PlaySong?name=test",
-					"host": [
-						"{{BaseUrl}}"
-					],
-					"path": [
-						"api",
-						"PlaySong"
-					],
-					"query": [
-						{
-							"key": "name",
-							"value": "test",
-							"equals": true,
-							"description": ""
-						}
-					],
-					"variable": []
-				},
-				"method": "GET",
+				"url": "{{BaseUrl}}/api/play",
+				"method": "POST",
 				"header": [],
 				"body": {},
 				"description": ""
