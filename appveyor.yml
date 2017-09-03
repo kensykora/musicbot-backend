@@ -26,6 +26,7 @@ environment:
 install:
   - npm install -g mocha
   - npm install -g mocha-multi-reporters
+  - npm install -g mocha-junit-reporter
   - npm install
 before_build:
   - ps: $pass = ConvertTo-SecureString $env:AZ_AD_SP_PASS -AsPlainText -Force
@@ -48,11 +49,11 @@ build_script:
 
   # Test
   - set BASE_URL=https://%AZ_RG_INT_PREFIX%%APPVEYOR_BUILD_NUMBER%-APP.azurewebsites.net/api
-  - mocha --slow 1000 --timeout 30000 test/func --reporter mocha-multi-reporters
+  - mocha --slow 1000 --timeout 30000 test/func --reporter mocha-multi-reporters --reporter-options configFile=test/func/mocha-multi-reporters-config.json
 
   # Upload test results
   - ps: $wc = New-Object 'System.Net.WebClient'
-  - ps: $wc.UploadFile("https://ci.appveyor.com/api/testresults/xunit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path .\xunit.xml))
+  - ps: $wc.UploadFile("https://ci.appveyor.com/api/testresults/junit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path test-results.xml))
 on_finish:
   - ps: Remove-AzureRmResourceGroup -Name $env:AZ_RG_INT_PREFIX$env:APPVEYOR_BUILD_NUMBER -Force
   - git push origin --delete %AZ_RG_INT_PREFIX%%APPVEYOR_BUILD_NUMBER%
