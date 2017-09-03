@@ -9,9 +9,8 @@ branches:
     - master
 notifications:
   - provider: Slack
-    auth_token:
-      secure: 1/na3S6d9ylqXC/YqZcFMwJC8SpT7mNZj7Aw9eLO/zFqY9ITisdhwP4sBkk1vZmzK+Hn3yjl/3sUBfJfTfoTMnuo485bRIB1ObYOxpxT2Ac=
-    channel: '#build'
+    inocming_webhook:
+      secure: MdVvSoK8ot0oaTh3xGuB2aPFuI64lu++kQAg0VYxdhsInJUIxOtZGwQng2wJLBMpNCl1NDnx+cooq8D945ICEe+/OsvKybd1rSWR6zPxqZA=
 environment:
   AZ_AD_SP_ID: http://musicbotsvc
   AZ_AD_TENANT: 46947e84-c7c5-4572-bf44-0c0b2d9013b8
