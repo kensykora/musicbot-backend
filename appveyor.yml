@@ -54,6 +54,12 @@ build_script:
   # Upload test results
   - ps: $wc = New-Object 'System.Net.WebClient'
   - ps: $wc.UploadFile("https://ci.appveyor.com/api/testresults/junit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path test-results.xml))
+on_success:
+  # Tag build for deployment to Azure Functions Dev
+  - git checkout dev
+  - git merge master
+  - git push origin dev
+  - ps: ./src/arm/Deploy-AzureResourceGroup.ps1 -ArtifactStagingDirectory src/arm -ResourceGroupName "MUSIC-BOT-DEV" -ResourceGroupLocation $env:AZ_LOCATION -OtherParams @{ resourcePrefix = "MUSIC-BOT-DEV"; branch = "dev"; }
 on_finish:
   - ps: Remove-AzureRmResourceGroup -Name $env:AZ_RG_INT_PREFIX$env:APPVEYOR_BUILD_NUMBER -Force
   - git push origin --delete %AZ_RG_INT_PREFIX%%APPVEYOR_BUILD_NUMBER%
