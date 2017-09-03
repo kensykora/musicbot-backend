@@ -18,6 +18,10 @@ Project("{151D2E53-A2C4-4D7D-83FE-D05416EBD58E}") = "MusicBot.Arm", "src\arm\Mus
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MusicBot.App", "app\MusicBot.App.csproj", "{73385F0A-74FC-4ECA-8992-BF3B1032FD7C}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Test", "Test", "{00A39AD5-5552-4E0F-B1EF-D0E7BCEECF7C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MusicBot.App.Test", "test\app\MusicBot.App.Test.csproj", "{2E3DF5C2-8A38-4A03-86D7-8D463C917E47}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -36,9 +40,16 @@ Global
 		{73385F0A-74FC-4ECA-8992-BF3B1032FD7C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{73385F0A-74FC-4ECA-8992-BF3B1032FD7C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{73385F0A-74FC-4ECA-8992-BF3B1032FD7C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2E3DF5C2-8A38-4A03-86D7-8D463C917E47}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2E3DF5C2-8A38-4A03-86D7-8D463C917E47}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2E3DF5C2-8A38-4A03-86D7-8D463C917E47}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2E3DF5C2-8A38-4A03-86D7-8D463C917E47}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{2E3DF5C2-8A38-4A03-86D7-8D463C917E47} = {00A39AD5-5552-4E0F-B1EF-D0E7BCEECF7C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {6FE80FD2-CF73-4A4C-8AF1-54A0E9B228CC}
