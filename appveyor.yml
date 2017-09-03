@@ -9,7 +9,7 @@ branches:
     - master
 notifications:
   - provider: Slack
-    inocming_webhook:
+    incoming_webhook:
       secure: MdVvSoK8ot0oaTh3xGuB2aPFuI64lu++kQAg0VYxdhsInJUIxOtZGwQng2wJLBMpNCl1NDnx+cooq8D945ICEe+/OsvKybd1rSWR6zPxqZA=
 environment:
   AZ_AD_SP_ID: http://musicbotsvc

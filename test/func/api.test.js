@@ -15,7 +15,7 @@ describe("Calling Play", function() {
         playCall = chakram.post(pathTo('/play'));
     });
 
-    it("Should Return Status Code 200", function () {
+    it("should return status code 200", function () {
         return expect(playCall).to.have.status(200);
     });
 });
