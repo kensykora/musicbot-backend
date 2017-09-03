@@ -313,3 +313,5 @@ project.lock.json
 appsettings.json
 local.settings.json
 TODO
+test-results.xml
+test-results.*.xml
