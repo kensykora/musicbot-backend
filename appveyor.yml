@@ -44,7 +44,7 @@ build_script:
   # Deploy resources and test
   - ps: ./src/arm/Deploy-AzureResourceGroup.ps1 -ArtifactStagingDirectory src/arm -ResourceGroupName "$env:AZ_RG_INT_PREFIX$env:APPVEYOR_BUILD_NUMBER" -ResourceGroupLocation $env:AZ_LOCATION -OtherParams @{ resourcePrefix = "$env:AZ_RG_INT_PREFIX$env:APPVEYOR_BUILD_NUMBER"; branch = "$env:AZ_RG_INT_PREFIX$env:APPVEYOR_BUILD_NUMBER"; }
   - ps: if ($LastExitCode -ne 0) { $host.SetShouldExit($LastExitCode) }
-  - newman run test/func/musicbot.postman_collection.json -e test/func/integration-test.postman_environment.json --global-var "BaseUrl=https://%AZ_RG_INT_PREFIX%%APPVEYOR_BUILD_NUMBER%-APP.azurewebsites.net" --reporter-junit-export ./integration-test-results.xml
+  - newman run test/func/musicbot.postman_collection.json -e test/func/integration-test.postman_environment.json --global-var "BaseUrl=https://%AZ_RG_INT_PREFIX%%APPVEYOR_BUILD_NUMBER%-APP.azurewebsites.net" -r cli,junit --reporter-junit-export ./integration-test-results.xml
   - ps: $wc = New-Object 'System.Net.WebClient'
   - ps: $wc.UploadFile("https://ci.appveyor.com/api/testresults/junit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path .\integration-test-results.xml))
 on_finish:
