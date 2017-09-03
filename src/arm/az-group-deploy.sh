@@ -27,7 +27,7 @@ while getopts "a:l:g:s:f:e:p:uv" opt; do
             validateOnly='true'
         ;;
         p)
-            resourcePrefix=$OPTARG #resource prefix to use for the deployment. Optional, will use parameters file if not specified.
+            resourcePrefix=$OPTARG #resource prefix to use for the deployment. Optional, will use resource group name if not specified.
         ;;
     esac
 done

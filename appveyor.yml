@@ -10,30 +10,28 @@ environment:
   AZ_RG_DEV: MUSIC-BOT-DEV
   AZ_RG_INT_PREFIX: MUSIC-BOT-INT-
   AZ_RG_PROD: MUSIC-BOT-PROD
-  DEV_PUBLISH_URL:
+install:
+  - npm install -g newman
 before_build:
   - ps: $pass = ConvertTo-SecureString $env:AZ_AD_SP_PASS -AsPlainText -Force
-  - ps: $cred = New-Object -TypeName pscredential –ArgumentList $env:AZ_AD_SP_ID, $pass
+  - ps: $cred = New-Object -TypeName pscredential ï¿½ArgumentList $env:AZ_AD_SP_ID, $pass
   - ps: Login-AzureRmAccount -Credential $cred -ServicePrincipal -TenantId $env:AZ_AD_TENANT
 build_script: 
+  # Restore and build
   - nuget restore
   - msbuild MusicBot.Backend.sln /p:Configuration=Release /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" /p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="MusicBot-Functions.zip"
-  - ps: ./src/arm/Deploy-AzureResourceGroup.ps1 -ArtifactStagingDirectory src/arm -ResourceGroupLocation $env:AZ_LOCATION -ResourceGroupName $env:AZ_RG_INT_PREFIX$env:APPVEYOR_BUILD_NUMBER
+
+  # Prep for integration test - push branch to github
+  - git checkout -b %AZ_RG_INT_PREFIX%%APPVEYOR_BUILD_NUMBER%
+  - git push -u origin %AZ_RG_INT_PREFIX%%APPVEYOR_BUILD_NUMBER%
+
+  # Deploy resources and test
+  - ps: ./src/arm/Deploy-AzureResourceGroup.ps1 -ArtifactStagingDirectory src/arm -ResourceGroupLocation $env:AZ_LOCATION -OtherParams @{ resourcePrefix = "$env:AZ_RG_INT_PREFIX$env:APPVEYOR_BUILD_NUMBER"; branch = "$env:AZ_RG_INT_PREFIX$env:APPVEYOR_BUILD_NUMBER"; }
   - ps: if ($LastExitCode -ne 0) { $host.SetShouldExit($LastExitCode) }
+  - newman run test/func/musicbot.postman_collection.json -e test/func/integration-test.postman_environment.json --global-var "BaseUrl=https://%AZ_RG_INT_PREFIX%%APPVEYOR_BUILD_NUMBER%.azurewebsites.net"
 on_finish:
   - ps: Start-Job -ScriptBlock { Remove-AzureRmResourceGroup -Name $env:AZ_RG_INT_PREFIX$env:APPVEYOR_BUILD_NUMBER -Force }
-deploy:
-  - provider: WebDeploy
-    server: https://music-bot-dev-app.scm.azurewebsites.net:443/MsDeploy.axd?Site=MUSIC-BOT-DEV-APP
-    website: MUSIC-BOT-DEV-APP
-    username: $MUSIC-BOT-DEV-APP
-    password:
-      secure: 4YuhAwTFo/5yD/5s9yIqm4bTScD8K19sbKcKLgfO6d0SbOCE/Di0FwwNPhU2HA92GppbjPV3n+ml5rSJFLD4pg==
-    ntlm: false
-    remove_files: true
-    artifact: Functions App
-    on:
-      branch: master
+  - ps: git push origin :[$env:AZ_RG_INT_PREFIX$env:APPVEYOR_BUILD_NUMBER]
 artifacts:
   - path: src/arm
     name: ARM Templates

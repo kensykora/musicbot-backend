@@ -6,6 +6,7 @@ Param(
     [string] [Parameter(Mandatory=$true)] $ResourceGroupLocation,
     [string] $ResourceGroupName,
     [switch] $UploadArtifacts,
+    [hashtable] $OtherParams,
     [string] $StorageAccountName,
     [string] $StorageContainerName = $ResourceGroupName.ToLowerInvariant() + '-stageartifacts',
     [string] $TemplateFile = 'azuredeploy.json',
@@ -89,10 +90,12 @@ if ($UploadArtifacts) {
         $OptionalParameters[$ArtifactsLocationSasTokenName] = ConvertTo-SecureString -AsPlainText -Force `
             (New-AzureStorageContainerSASToken -Container $StorageContainerName -Context $StorageAccount.Context -Permission r -ExpiryTime (Get-Date).AddHours(4))
     }
+}
 
-	$OptionalParameters["resourcePrefix"] = $ResourceGroupName
-} else {
-	$OptionalParameters["resourcePrefix"] = $ResourceGroupName
+if($OtherParams) {
+    foreach($param in $OtherParams.Keys) {
+        $OptionalParameters[$param] = $OtherParams[$param]
+    }
 }
 
 # Create or update the resource group using the specified template file and template parameters file
