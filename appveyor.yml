@@ -12,6 +12,8 @@ environment:
   AZ_RG_DEV: MUSIC-BOT-DEV
   AZ_RG_INT_PREFIX: MUSIC-BOT-INT-
   AZ_RG_PROD: MUSIC-BOT-PROD
+  GIT_ACCESS_TOKEN:
+    secure: /8nuu389OsrB4Ylkb0aM6AsXqVTYfhqMibLEH8SZDNAEOIMPe2SiR8Im/jFX6rQ2
 install:
   - npm install -g newman
 before_build:
@@ -24,6 +26,8 @@ build_script:
   - msbuild MusicBot.Backend.sln /p:Configuration=Release /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" /p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="MusicBot-Functions.zip"
 
   # Prep for integration test - push branch to github
+  - git config --global credential.helper store
+  - ps: Add-Content "$env:USERPROFILE\.git-credentials" "https://$($env:GIT_ACCESS_TOKEN):x-oauth-basic@github.com`n"
   - git checkout -b %AZ_RG_INT_PREFIX%%APPVEYOR_BUILD_NUMBER%
   - git push -u origin %AZ_RG_INT_PREFIX%%APPVEYOR_BUILD_NUMBER%
 
