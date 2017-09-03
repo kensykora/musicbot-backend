@@ -2,7 +2,7 @@
 using System.Linq;
 using Xunit;
 
-namespace app
+namespace MusicBot.App.Test
 {
     public class UnitTest1
     {

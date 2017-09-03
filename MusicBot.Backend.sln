@@ -15,7 +15,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{D5C6FDAF
 EndProject
 Project("{151D2E53-A2C4-4D7D-83FE-D05416EBD58E}") = "MusicBot.Arm", "src\arm\MusicBot.Arm.deployproj", "{5988C502-85CB-4C7C-9BDF-18A8F0D26E4D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MusicBot.App", "app\MusicBot.App.csproj", "{73385F0A-74FC-4ECA-8992-BF3B1032FD7C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MusicBot.App", "src\app\MusicBot.App.csproj", "{73385F0A-74FC-4ECA-8992-BF3B1032FD7C}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Test", "Test", "{00A39AD5-5552-4E0F-B1EF-D0E7BCEECF7C}"
 EndProject
