@@ -54,9 +54,12 @@ build_script:
   - mocha --slow %MOCHA_SLOW_THRESHOLD_MS% --timeout %MOCHA_TIMEOUT_THRESHOLD_MS% test/func --reporter mocha-multi-reporters --reporter-options configFile=test/func/mocha-multi-reporters-config.json
   - ps: Stop-Job $funcJob
 
+  # Upload test results
+  - ps: $wc = New-Object 'System.Net.WebClient'
+  - ps: $wc.UploadFile("https://ci.appveyor.com/api/testresults/junit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path test-results.xml))
+
   # If this is a PR, we're done
-  - ps: Write-Host PR --$env:APPVEYOR_PULL_REQUEST_NUMBER--
-  - ps: if ($env:APPVEYOR_PULL_REQUEST_NUMBER -ne '') { Exit-AppVeyorBuild }
+  - ps: if ($env:APPVEYOR_PULL_REQUEST_NUMBER -ne $null) { Exit-AppVeyorBuild }
 
   # Prep for Azure integration test - push branch to github
   - git config --global credential.helper store
@@ -64,14 +67,14 @@ build_script:
   - git checkout -b %AZ_RG_INT_PREFIX%%APPVEYOR_BUILD_NUMBER%
   - git push -u origin %AZ_RG_INT_PREFIX%%APPVEYOR_BUILD_NUMBER%
 
-  # Deploy resources and test on azure
+  # Deploy resources to Azure for integration testing
   - ps: $pass = ConvertTo-SecureString $env:AZ_AD_SP_PASS -AsPlainText -Force
   - ps: $cred = New-Object -TypeName pscredential -ArgumentList $env:AZ_AD_SP_ID, $pass
   - ps: Login-AzureRmAccount -Credential $cred -ServicePrincipal -TenantId $env:AZ_AD_TENANT
   - ps: ./src/arm/Deploy-AzureResourceGroup.ps1 -ResourceGroupName "$env:AZ_RG_INT_PREFIX$env:APPVEYOR_BUILD_NUMBER" -ResourceGroupLocation $env:AZ_LOCATION -OtherParams @{ resourcePrefix = "$env:AZ_RG_INT_PREFIX$env:APPVEYOR_BUILD_NUMBER"; branch = "$env:AZ_RG_INT_PREFIX$env:APPVEYOR_BUILD_NUMBER"; includeSourceControlDeployment = "yes"; } -UploadArtifacts -StorageAccountName $env:AZ_ARM_STORAGE_ACCOUNT_NAME
   - ps: if ($LastExitCode -ne 0) { throw }
 
-  # Test
+  # Test on Azure
   - set BASE_URL=https://%AZ_RG_INT_PREFIX%%APPVEYOR_BUILD_NUMBER%-APP.azurewebsites.net/api
   - mocha --slow %MOCHA_SLOW_THRESHOLD_MS% --timeout %MOCHA_TIMEOUT_THRESHOLD_MS% test/func --reporter mocha-multi-reporters --reporter-options configFile=test/func/mocha-multi-reporters-config.json
 
@@ -107,9 +110,9 @@ deploy_script:
         Write-Host "Non-Prod tagged commit, skipping deployment." 
       }
 on_finish:
-  # If this is a PR, we're done
-  - ps: if ($env:APPVEYOR_PULL_REQUEST_NUMBER -ne '') { Exit-AppVeyorBuild }
-
-  # Delete integration test branch and remove azure resources
-  - git push origin --delete %AZ_RG_INT_PREFIX%%APPVEYOR_BUILD_NUMBER%
-  - ps: Remove-AzureRmResourceGroup -Name $env:AZ_RG_INT_PREFIX$env:APPVEYOR_BUILD_NUMBER -Force
+  # On non-PRs, remove git and azure resources
+  - ps: | 
+      if ($env:APPVEYOR_PULL_REQUEST_NUMBER -ne $null) { 
+         git push origin --delete $env:AZ_RG_INT_PREFIX$env:APPVEYOR_BUILD_NUMBER
+         Remove-AzureRmResourceGroup -Name $env:AZ_RG_INT_PREFIX$env:APPVEYOR_BUILD_NUMBER -Force
+      }
