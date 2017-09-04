@@ -45,7 +45,7 @@ install:
 build_script: 
   # Restore and build
   - nuget restore
-  - msbuild MusicBot.Backend.sln /p:Configuration=Release /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
+  - msbuild MusicBot.Backend.sln /p:Configuration=Release /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" /verbosity:minimal
 
   # Integration Test locally
   - ps: $funcDir = $(pwd).Path + '\src\func\bin\Release\Net47'
