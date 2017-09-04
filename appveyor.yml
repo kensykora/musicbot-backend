@@ -47,7 +47,7 @@ build_script:
   - nuget restore
   - msbuild MusicBot.Backend.sln /p:Configuration=Release /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
 
-  # Test locally
+  # Integration Test locally
   - ps: $funcDir = $(pwd).Path + '\src\func\bin\Release\Net47'
   - ps: $funcJob = Start-Job -FilePath .\test\func\Start-FuncHost.ps1 -ArgumentList $funcDir
   - ps: Start-Sleep -s 5 # give it some startup time
@@ -55,9 +55,10 @@ build_script:
   - ps: Stop-Job $funcJob
 
   # If this is a PR, we're done
+  - ps: Write-Host "PR: '$env:APPVEYOR_PULL_REQUEST_NUMBER'"
   - ps: if ($env:APPVEYOR_PULL_REQUEST_NUMBER -ne '') { Exit-AppVeyorBuild }
 
-  # Prep for integration test - push branch to github
+  # Prep for Azure integration test - push branch to github
   - git config --global credential.helper store
   - ps: Add-Content "$env:USERPROFILE\.git-credentials" "https://$($env:GIT_ACCESS_TOKEN):x-oauth-basic@github.com`n"
   - git checkout -b %AZ_RG_INT_PREFIX%%APPVEYOR_BUILD_NUMBER%
@@ -82,8 +83,33 @@ before_deploy:
   - ps: $cred = New-Object -TypeName pscredential -ArgumentList $env:AZ_AD_SP_ID, $pass
   - ps: Login-AzureRmAccount -Credential $cred -ServicePrincipal -TenantId $env:AZ_AD_TENANT
 deploy_script:
-  # Deploy to Azure - Dev 
-  - ps: if($env:APPVEYOR_REPO_TAG -eq 'true' -and $env:APPVEYOR_REPO_TAG_NAME -eq 'prod') { Write-Host "Deploying to Production"; ./src/arm/Deploy-Environment.ps1 -ResourceGroupName $env:AZ_RG_PROD -ResourceGroupLocation $env:AZ_LOCATION -ResourcePrefix $env:AZ_RG_PROD -Branch $env:PROD_BRANCH_NAME -Version "$env:VERSION.$env:APPVEYOR_BUILD_NUMBER" -StorageAccountName $env:AZ_ARM_STORAGE_ACCOUNT_NAME; } elseif ($env:APPVEYOR_REPO_TAG -eq 'false') { Write-Host "Deploying to Dev"; ./src/arm/Deploy-Environment.ps1 -ResourceGroupName $env:AZ_RG_DEV -ResourceGroupLocation $env:AZ_LOCATION -ResourcePrefix $env:AZ_RG_DEV -Branch $env:DEV_BRANCH_NAME -Version "$env:VERSION.$env:APPVEYOR_BUILD_NUMBER" -StorageAccountName $env:AZ_ARM_STORAGE_ACCOUNT_NAME; } else { Write-Host "Non-Prod tagged commit, skipping deployment." }
+  # Deploy to Azure - Dev, or Prod on tag
+  - ps: |
+      if ($env:APPVEYOR_REPO_TAG -eq 'true' -and $env:APPVEYOR_REPO_TAG_NAME -eq 'prod') { 
+        Write-Host "Deploying to Production"; 
+        ./src/arm/Deploy-Environment.ps1 `
+          -ResourceGroupName $env:AZ_RG_PROD `
+          -ResourceGroupLocation $env:AZ_LOCATION `
+          -ResourcePrefix $env:AZ_RG_PROD `
+          -Branch $env:PROD_BRANCH_NAME `
+          -Version "$env:VERSION.$env:APPVEYOR_BUILD_NUMBER" `
+          -StorageAccountName $env:AZ_ARM_STORAGE_ACCOUNT_NAME; 
+      } elseif ($env:APPVEYOR_REPO_TAG -eq 'false') { 
+        Write-Host "Deploying to Dev"; 
+        ./src/arm/Deploy-Environment.ps1 `
+          -ResourceGroupName $env:AZ_RG_DEV `
+          -ResourceGroupLocation $env:AZ_LOCATION `
+          -ResourcePrefix $env:AZ_RG_DEV `
+          -Branch $env:DEV_BRANCH_NAME `
+          -Version "$env:VERSION.$env:APPVEYOR_BUILD_NUMBER" `
+          -StorageAccountName $env:AZ_ARM_STORAGE_ACCOUNT_NAME; 
+      } else { 
+        Write-Host "Non-Prod tagged commit, skipping deployment." 
+      }
 on_finish:
+  # If this is a PR, we're done
+  - ps: if ($env:APPVEYOR_PULL_REQUEST_NUMBER -ne '') { Exit-AppVeyorBuild }
+
+  # Delete integration test branch and remove azure resources
   - git push origin --delete %AZ_RG_INT_PREFIX%%APPVEYOR_BUILD_NUMBER%
   - ps: Remove-AzureRmResourceGroup -Name $env:AZ_RG_INT_PREFIX$env:APPVEYOR_BUILD_NUMBER -Force
