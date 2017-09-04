@@ -51,7 +51,7 @@ build_script:
   - ps: $funcDir = $(pwd).Path + '\src\func\bin\Release\Net47'
   - ps: $funcJob = Start-Job -FilePath .\test\func\Start-FuncHost.ps1 -ArgumentList $funcDir
   - ps: Start-Sleep -s 15 # give it some startup time
-  - ps: Receive-Job $funcJob
+  - ps: Receive-Job $funcJob -ErrorAction Ignore
   - >
       mocha --slow %MOCHA_SLOW_THRESHOLD_MS% 
       --timeout %MOCHA_TIMEOUT_THRESHOLD_MS%
@@ -102,6 +102,8 @@ build_script:
   # Upload test results
   - ps: $wc = New-Object 'System.Net.WebClient'
   - ps: $wc.UploadFile("https://ci.appveyor.com/api/testresults/junit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path test-results.xml))
+after_build:
+  - ps: if ($funcJob.State -ne 'Stopped') { Stop-Job $funcJob }
 before_deploy:
   - ps: $pass = ConvertTo-SecureString $env:AZ_AD_SP_PASS -AsPlainText -Force
   - ps: $cred = New-Object -TypeName pscredential -ArgumentList $env:AZ_AD_SP_ID, $pass
