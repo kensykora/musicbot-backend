@@ -59,7 +59,7 @@ build_script:
 
   # Test
   - set BASE_URL=https://%AZ_RG_INT_PREFIX%%APPVEYOR_BUILD_NUMBER%-APP.azurewebsites.net/api
-  - mocha --slow 1000 --timeout 30000 test/func --reporter mocha-multi-reporters --reporter-options configFile=test/func/mocha-multi-reporters-config.json
+  - mocha --slow 1000 --timeout 10000 test/func --reporter mocha-multi-reporters --reporter-options configFile=test/func/mocha-multi-reporters-config.json
 
   # Upload test results
   - ps: $wc = New-Object 'System.Net.WebClient'
