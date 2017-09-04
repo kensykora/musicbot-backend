@@ -12,6 +12,8 @@ environment:
   DEV_BRANCH_NAME: dev
   AZ_RG_PROD: MUSIC-BOT-PROD
   PROD_BRANCH_NAME: prod
+  MOCHA_SLOW_THRESHOLD_MS: 1000
+  MOCHA_TIMEOUT_THRESHOLD_MS: 10000
   GIT_ACCESS_TOKEN:
     secure: /8nuu389OsrB4Ylkb0aM6AsXqVTYfhqMibLEH8SZDNAEOIMPe2SiR8Im/jFX6rQ2
 image: Visual Studio 2017 Preview
@@ -40,14 +42,19 @@ install:
   - npm install -g mocha-junit-reporter
   - npm install -g azure-functions-core-tools
   - npm install
-before_build:
-  - ps: $pass = ConvertTo-SecureString $env:AZ_AD_SP_PASS -AsPlainText -Force
-  - ps: $cred = New-Object -TypeName pscredential -ArgumentList $env:AZ_AD_SP_ID, $pass
-  - ps: Login-AzureRmAccount -Credential $cred -ServicePrincipal -TenantId $env:AZ_AD_TENANT
 build_script: 
   # Restore and build
   - nuget restore
   - msbuild MusicBot.Backend.sln /p:Configuration=Release /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
+
+  # Test locally
+  - ps: $funcDir = $(pwd).Path + '\src\func\bin\Release\Net47'
+  - ps: $funcJob = Start-Job -FilePath .\test\func\Start-FuncHost.ps1 -ArgumentList $funcDir
+  - mocha --slow %MOCHA_SLOW_THRESHOLD_MS% --timeout %MOCHA_TIMEOUT_THRESHOLD_MS% test/func --reporter mocha-multi-reporters --reporter-options
+  - ps: Stop-Job $funcJob
+
+  # If this is a PR, we're done
+  - ps: if ($env:APPVEYOR_PULL_REQUEST_NUMBER -neq '') { Exit-AppVeyorBuild }
 
   # Prep for integration test - push branch to github
   - git config --global credential.helper store
@@ -55,13 +62,16 @@ build_script:
   - git checkout -b %AZ_RG_INT_PREFIX%%APPVEYOR_BUILD_NUMBER%
   - git push -u origin %AZ_RG_INT_PREFIX%%APPVEYOR_BUILD_NUMBER%
 
-  # Deploy resources and test
+  # Deploy resources and test on azure
+  - ps: $pass = ConvertTo-SecureString $env:AZ_AD_SP_PASS -AsPlainText -Force
+  - ps: $cred = New-Object -TypeName pscredential -ArgumentList $env:AZ_AD_SP_ID, $pass
+  - ps: Login-AzureRmAccount -Credential $cred -ServicePrincipal -TenantId $env:AZ_AD_TENANT
   - ps: ./src/arm/Deploy-AzureResourceGroup.ps1 -ResourceGroupName "$env:AZ_RG_INT_PREFIX$env:APPVEYOR_BUILD_NUMBER" -ResourceGroupLocation $env:AZ_LOCATION -OtherParams @{ resourcePrefix = "$env:AZ_RG_INT_PREFIX$env:APPVEYOR_BUILD_NUMBER"; branch = "$env:AZ_RG_INT_PREFIX$env:APPVEYOR_BUILD_NUMBER"; includeSourceControlDeployment = "yes"; } -UploadArtifacts -StorageAccountName $env:AZ_ARM_STORAGE_ACCOUNT_NAME
-  - ps: if ($LastExitCode -ne 0) { $host.SetShouldExit($LastExitCode) }
+  - ps: if ($LastExitCode -ne 0) { throw }
 
   # Test
   - set BASE_URL=https://%AZ_RG_INT_PREFIX%%APPVEYOR_BUILD_NUMBER%-APP.azurewebsites.net/api
-  - mocha --slow 1000 --timeout 10000 test/func --reporter mocha-multi-reporters --reporter-options configFile=test/func/mocha-multi-reporters-config.json
+  - mocha --slow %MOCHA_SLOW_THRESHOLD_MS% --timeout %MOCHA_TIMEOUT_THRESHOLD_MS% test/func --reporter mocha-multi-reporters --reporter-options configFile=test/func/mocha-multi-reporters-config.json
 
   # Upload test results
   - ps: $wc = New-Object 'System.Net.WebClient'
