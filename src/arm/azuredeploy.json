@@ -56,7 +56,7 @@
   },
   "resources": [{
       "apiVersion": "2016-07-01",
-      "name": "linkedTemplate",
+      "name": "[concat('deployGithub-', parameters('includeSourceControlDeployment'))]",
       "type": "Microsoft.Resources/deployments",
       "properties": {
         "mode": "incremental",
