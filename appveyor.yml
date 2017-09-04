@@ -50,7 +50,8 @@ build_script:
   # Integration Test locally
   - ps: $funcDir = $(pwd).Path + '\src\func\bin\Release\Net47'
   - ps: $funcJob = Start-Job -FilePath .\test\func\Start-FuncHost.ps1 -ArgumentList $funcDir
-  - ps: Start-Sleep -s 5 # give it some startup time
+  - ps: Start-Sleep -s 15 # give it some startup time
+  - ps: Receive-Job $funcJob
   - >
       mocha --slow %MOCHA_SLOW_THRESHOLD_MS% 
       --timeout %MOCHA_TIMEOUT_THRESHOLD_MS%
