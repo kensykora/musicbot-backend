@@ -130,4 +130,4 @@ on_finish:
   - ps: if ($DeployedIntegrationEnvironment) { Remove-AzureRmResourceGroup -Name $env:AZ_RG_INT_PREFIX$env:APPVEYOR_BUILD_NUMBER -Force }
 
   # Tear down pushed branch
-  - ps: if ($PushedBranch) { git push origin --delete $env:AZ_RG_INT_PREFIX$env:APPVEYOR_BUILD_NUMBER 2>&1 }
+  - ps: if ($PushedBranch) { $ErrorActionPreference = "SilentlyContinue"; cmd /c git push origin --delete $env:AZ_RG_INT_PREFIX$env:APPVEYOR_BUILD_NUMBER 2>&1 }
