@@ -11,4 +11,4 @@ git checkout .
 git checkout $Branch
 git merge master
 git push origin $Branch
-./src/arm/Update-VersionSetting.ps1 -ResourceGroupName "$ResourceGroupName" -AppServiceName "$ResourceGroupName-APP" -VersionNumber $Version
+./src/arm/Update-VersionSetting.ps1 -ResourceGroupName "$ResourceGroupName" -AppServiceName "$ResourcePrefix-APP" -VersionNumber $Version
