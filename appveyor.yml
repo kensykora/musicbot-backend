@@ -54,7 +54,7 @@ build_script:
   - git push -u origin %AZ_RG_INT_PREFIX%%APPVEYOR_BUILD_NUMBER%
 
   # Deploy resources and test
-  - ps: ./src/arm/Deploy-AzureResourceGroup.ps1 -ArtifactStagingDirectory src/arm -ResourceGroupName "$env:AZ_RG_INT_PREFIX$env:APPVEYOR_BUILD_NUMBER" -ResourceGroupLocation $env:AZ_LOCATION -OtherParams @{ resourcePrefix = "$env:AZ_RG_INT_PREFIX$env:APPVEYOR_BUILD_NUMBER"; branch = "$env:AZ_RG_INT_PREFIX$env:APPVEYOR_BUILD_NUMBER"; }
+  - ps: ./src/arm/Deploy-AzureResourceGroup.ps1 -ArtifactStagingDirectory src/arm -ResourceGroupName "$env:AZ_RG_INT_PREFIX$env:APPVEYOR_BUILD_NUMBER" -ResourceGroupLocation $env:AZ_LOCATION -OtherParams @{ resourcePrefix = "$env:AZ_RG_INT_PREFIX$env:APPVEYOR_BUILD_NUMBER"; branch = "$env:AZ_RG_INT_PREFIX$env:APPVEYOR_BUILD_NUMBER"; includeSourceControlDeployment = "yes"; } -UploadArtifacts
   - ps: if ($LastExitCode -ne 0) { $host.SetShouldExit($LastExitCode) }
 
   # Test
@@ -64,14 +64,15 @@ build_script:
   # Upload test results
   - ps: $wc = New-Object 'System.Net.WebClient'
   - ps: $wc.UploadFile("https://ci.appveyor.com/api/testresults/junit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path test-results.xml))
-on_success:
-  # Deploy to Azure Functions Dev
-  - ps: ./src/arm/Deploy-AzureResourceGroup.ps1 -ArtifactStagingDirectory src/arm -ResourceGroupName "$env:AZ_RG_DEV" -ResourceGroupLocation $env:AZ_LOCATION -OtherParams @{ resourcePrefix = "$env:AZ_RG_DEV"; branch = "$env:DEV_BRANCH_NAME"; }
+deploy_script:
+  # Deploy to Azure
+  - ps: ./src/arm/Deploy-AzureResourceGroup.ps1 -ArtifactStagingDirectory src/arm -ResourceGroupName "$env:AZ_RG_DEV" -ResourceGroupLocation $env:AZ_LOCATION -OtherParams @{ resourcePrefix = "$env:AZ_RG_DEV"; branch = "$env:DEV_BRANCH_NAME"; } -UploadArtifacts
   - git checkout .
   - git checkout dev
   - git merge master
   - git push origin dev
   - ps: ./src/arm/Update-VersionSetting.ps1 -ResourceGroupName "$env:AZ_RG_DEV" -AppServiceName "$env:AZ_RG_DEV-APP" -VersionNumber "$env:VERSION.$env:APPVEYOR_BUILD_NUMBER"
+  
 on_finish:
   - git push origin --delete %AZ_RG_INT_PREFIX%%APPVEYOR_BUILD_NUMBER%
   - ps: Remove-AzureRmResourceGroup -Name $env:AZ_RG_INT_PREFIX$env:APPVEYOR_BUILD_NUMBER -Force

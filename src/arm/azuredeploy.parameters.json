@@ -4,6 +4,9 @@
   "parameters": {
     "resourcePrefix": {
       "value": "MUSIC-BOT-SANDBOX"
+    },
+    "includeSourceControlDeployment": {
+      "value": "no"
     }
   }
 }

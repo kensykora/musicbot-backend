@@ -20,8 +20,7 @@
       "type": "securestring",
       "defaultValue": "",
       "metadata": {
-        "description":
-          "The sasToken required to access _artifactsLocation.  When the template is deployed using the accompanying scripts, a sasToken will be automatically generated"
+        "description": "The sasToken required to access _artifactsLocation.  When the template is deployed using the accompanying scripts, a sasToken will be automatically generated"
       }
     },
     "repoURL": {
@@ -37,14 +36,50 @@
       "metadata": {
         "description": "The branch of the GitHub repository to use."
       }
+    },
+    "includeSourceControlDeployment": {
+      "type": "string",
+      "allowedValues": [
+        "yes", "no"
+      ],
+      "defaultValue": "yes",
+      "metadata": {
+        "description": "Yes to include function app from github as deployment. Provide repoURL and branch parameter."
+      }
     }
   },
   "variables": {
+    "deploymentSourceLink": "[concat(parameters('_artifactsLocation'),'/_app-sourcecontrols-', parameters('includeSourceControlDeployment'), '.json', parameters('_artifactsLocationSasToken'))]",
     "appServiceName": "[concat(parameters('resourcePrefix'), '-APP')]",
     "storageName": "[replace(toLower(concat(parameters('resourcePrefix'), '-STG')),'-','')]",
     "insightsName": "[concat(parameters('resourcePrefix'), '-INS')]"
   },
-  "resources": [
+  "resources": [{
+      "apiVersion": "2016-07-01",
+      "name": "linkedTemplate",
+      "type": "Microsoft.Resources/deployments",
+      "properties": {
+        "mode": "incremental",
+        "templateLink": {
+          "uri": "[variables('deploymentSourceLink')]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "siteName": {
+            "value": "[variables('appServiceName')]"
+          },
+          "repoUrl": {
+            "value": "[parameters('repoUrl')]"
+          },
+          "branch": {
+            "value": "[parameters('branch')]"
+          }
+        }
+      },
+      "dependsOn": [
+        "[variables('appServiceName')]"
+      ]
+    },
     {
       "name": "[variables('appServiceName')]",
       "type": "Microsoft.Web/sites",
@@ -54,16 +89,13 @@
       ],
       "properties": {
         "siteConfig": {
-          "appSettings": [
-            {
+          "appSettings": [{
               "name": "AzureWebJobsDashboard",
-              "value":
-                "[concat('DefaultEndpointsProtocol=https;AccountName=',variables('storageName'),';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageName')), '2015-05-01-preview').key1)]"
+              "value": "[concat('DefaultEndpointsProtocol=https;AccountName=',variables('storageName'),';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageName')), '2015-05-01-preview').key1)]"
             },
             {
               "name": "AzureWebJobsStorage",
-              "value":
-                "[concat('DefaultEndpointsProtocol=https;AccountName=',variables('storageName'),';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageName')), '2015-05-01-preview').key1)]"
+              "value": "[concat('DefaultEndpointsProtocol=https;AccountName=',variables('storageName'),';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageName')), '2015-05-01-preview').key1)]"
             },
             {
               "name": "FUNCTIONS_EXTENSION_VERSION",
@@ -71,8 +103,7 @@
             },
             {
               "name": "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING",
-              "value":
-                "[concat('DefaultEndpointsProtocol=https;AccountName=',variables('storageName'),';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageName')), '2015-05-01-preview').key1)]"
+              "value": "[concat('DefaultEndpointsProtocol=https;AccountName=',variables('storageName'),';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageName')), '2015-05-01-preview').key1)]"
             },
             {
               "name": "WEBSITE_CONTENTSHARE",
@@ -84,8 +115,7 @@
             },
             {
               "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
-              "value":
-                "[reference(resourceId('microsoft.insights/components/', variables('insightsName')), '2015-05-01').InstrumentationKey]"
+              "value": "[reference(resourceId('microsoft.insights/components/', variables('insightsName')), '2015-05-01').InstrumentationKey]"
             }
           ]
         },
@@ -94,22 +124,7 @@
       },
       "apiVersion": "2016-03-01",
       "location": "[resourceGroup().location]",
-      "kind": "functionapp",
-      "resources": [
-        {
-          "apiVersion": "2015-08-01",
-          "name": "web",
-          "type": "sourcecontrols",
-          "dependsOn": [
-            "[variables('appServiceName')]"
-          ],
-          "properties": {
-            "RepoUrl": "[parameters('repoURL')]",
-            "branch": "[parameters('branch')]",
-            "IsManualIntegration": "true"
-          }
-        }
-      ]
+      "kind": "functionapp"
     },
     {
       "apiVersion": "2015-05-01-preview",
