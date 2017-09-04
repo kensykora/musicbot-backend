@@ -1,6 +1,6 @@
-version: 1.0.0.{build}
+version: 0.1.0.{build}
 environment:
-  VERSION: 1.0.0
+  VERSION: 0.1.0
   AZ_AD_SP_ID: http://musicbotsvc
   AZ_AD_TENANT: 46947e84-c7c5-4572-bf44-0c0b2d9013b8
   AZ_AD_SP_PASS:
