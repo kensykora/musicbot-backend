@@ -55,7 +55,7 @@ build_script:
   - ps: Stop-Job $funcJob
 
   # If this is a PR, we're done
-  - ps: Write-Host "PR: '$env:APPVEYOR_PULL_REQUEST_NUMBER'"
+  - ps: Write-Host PR: $env:APPVEYOR_PULL_REQUEST_NUMBER
   - ps: if ($env:APPVEYOR_PULL_REQUEST_NUMBER -ne '') { Exit-AppVeyorBuild }
 
   # Prep for Azure integration test - push branch to github
