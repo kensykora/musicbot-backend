@@ -3,10 +3,11 @@ param(
     [string] [Parameter(Mandatory=$true)]  $ResourceGroupLocation,
     [string] [Parameter(Mandatory=$true)]  $ResourcePrefix,
     [string] [Parameter(Mandatory=$true)]  $Branch,
-    [string] [Parameter(Mandatory=$true)]  $Version
+    [string] [Parameter(Mandatory=$true)]  $Version,
+    [string] [Parameter(Mandatory=$true)]  $StorageAccountName
 )
 
-./src/arm/Deploy-AzureResourceGroup.ps1 -ResourceGroupName "$ResourceGroupName" -ResourceGroupLocation $ResourceGroupLocation -OtherParams @{ resourcePrefix = $ResourcePrefix; branch = $Branch; includeSourceControlDeployment = "no" } -UploadArtifacts
+./src/arm/Deploy-AzureResourceGroup.ps1 -ResourceGroupName "$ResourceGroupName" -ResourceGroupLocation $ResourceGroupLocation -OtherParams @{ resourcePrefix = $ResourcePrefix; branch = $Branch; includeSourceControlDeployment = "no" } -UploadArtifacts -UploadArtifacts -StorageAccountName $StorageAccountName
 git checkout .
 git checkout $Branch
 git merge master
