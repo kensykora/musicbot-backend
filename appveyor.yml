@@ -58,10 +58,6 @@ build_script:
       --reporter-options configFile=test/func/local-mocha-reporter-config.json
       test/func
 
-  # Upload test results
-  - ps: $wc = New-Object 'System.Net.WebClient'
-  - ps: $wc.UploadFile("https://ci.appveyor.com/api/testresults/junit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path test-results.xml))
-
   - ps: Stop-Job $funcJob 
 
   # If this is a PR, we're done
