@@ -94,33 +94,8 @@ build_script:
       mocha --slow %MOCHA_SLOW_THRESHOLD_MS% 
       --timeout %MOCHA_TIMEOUT_THRESHOLD_MS% 
       --reporter mocha-multi-reporters 
-      --reporter-options configFile=test/func/azure-mocha-reporter-config.json
+      --reporter-options configFile=test/func/integration-mocha-reporter-config.json
       test/func
-after_build:
-  # Stop the functions job if it's running
-  - ps: if ($funcJob.State -ne 'Stopped') { Stop-Job $funcJob }
-
-  # Tear down Azure Integration environment
-  - ps: if ($DeployedIntegrationEnvironment) { Remove-AzureRmResourceGroup -Name $env:AZ_RG_INT_PREFIX$env:APPVEYOR_BUILD_NUMBER -Force }
-
-  # Tear down pushed branch
-  - ps: if ($PushedBranch) { git push origin --delete $env:AZ_RG_INT_PREFIX$env:APPVEYOR_BUILD_NUMBER }
-
-  # Upload test results
-  - ps: |
-      if (Test-Path .\local-test-results.xml) {
-        $wc = New-Object 'System.Net.WebClient'
-        $wc.UploadFile("https://ci.appveyor.com/api/testresults/junit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path .\local-test-results.xml))
-      }
-  - ps: |
-      if (Test-Path .\integration-test-results.xml) {
-        $wc = New-Object 'System.Net.WebClient'
-        $wc.UploadFile("https://ci.appveyor.com/api/testresults/junit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path .\integration-test-results.xml))
-      }
-before_deploy:
-  - ps: $pass = ConvertTo-SecureString $env:AZ_AD_SP_PASS -AsPlainText -Force
-  - ps: $cred = New-Object -TypeName pscredential -ArgumentList $env:AZ_AD_SP_ID, $pass
-  - ps: Login-AzureRmAccount -Credential $cred -ServicePrincipal -TenantId $env:AZ_AD_TENANT
 deploy_script:
   # Deploy to Azure - Dev, or Prod on tag
   - ps: |
@@ -144,4 +119,25 @@ deploy_script:
           -StorageAccountName $env:AZ_ARM_STORAGE_ACCOUNT_NAME; 
       } else { 
         Write-Host "Non-Prod tagged commit, skipping deployment." 
+      }
+on_finish:
+  # Stop the functions job if it's running
+  - ps: if ($funcJob -ne $null -and $funcJob.State -ne 'Stopped') { Stop-Job $funcJob }
+
+  # Tear down Azure Integration environment
+  - ps: if ($DeployedIntegrationEnvironment) { Remove-AzureRmResourceGroup -Name $env:AZ_RG_INT_PREFIX$env:APPVEYOR_BUILD_NUMBER -Force }
+
+  # Tear down pushed branch
+  - ps: if ($PushedBranch) { git push origin --delete $env:AZ_RG_INT_PREFIX$env:APPVEYOR_BUILD_NUMBER }
+
+  # Upload test results
+  - ps: |
+      if (Test-Path .\local-test-results.xml) {
+        $wc = New-Object 'System.Net.WebClient'
+        $wc.UploadFile("https://ci.appveyor.com/api/testresults/junit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path .\local-test-results.xml))
+      }
+  - ps: |
+      if (Test-Path .\integration-test-results.xml) {
+        $wc = New-Object 'System.Net.WebClient'
+        $wc.UploadFile("https://ci.appveyor.com/api/testresults/junit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path .\integration-test-results.xml))
       }
