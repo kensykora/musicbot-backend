@@ -100,10 +100,6 @@ build_script:
       --reporter mocha-multi-reporters 
       --reporter-options configFile=test/func/azure-mocha-reporter-config.json
       test/func
-
-  # Upload test results
-  - ps: $wc = New-Object 'System.Net.WebClient'
-  - ps: $wc.UploadFile("https://ci.appveyor.com/api/testresults/junit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path test-results.xml))
 after_build:
   # Stop the functions job if it's running
   - ps: if ($funcJob.State -ne 'Stopped') { Stop-Job $funcJob }
