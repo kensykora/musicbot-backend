@@ -6,6 +6,7 @@ environment:
   AZ_AD_SP_PASS:
     secure: QBSDpMZyT8QNWCo1R8M6o7+Umvo61xZjMnRIAp2a/eM=
   AZ_LOCATION: eastus
+  AZ_ARM_STORAGE_ACCOUNT_NAME: stageda864e5f18ab4628ac6
   AZ_RG_INT_PREFIX: MUSIC-BOT-INT-
   AZ_RG_DEV: MUSIC-BOT-DEV
   DEV_BRANCH_NAME: dev
@@ -37,6 +38,7 @@ install:
   - npm install -g mocha
   - npm install -g mocha-multi-reporters
   - npm install -g mocha-junit-reporter
+  - npm install -g azure-functions-core-tools
   - npm install
 before_build:
   - ps: $pass = ConvertTo-SecureString $env:AZ_AD_SP_PASS -AsPlainText -Force
@@ -54,7 +56,7 @@ build_script:
   - git push -u origin %AZ_RG_INT_PREFIX%%APPVEYOR_BUILD_NUMBER%
 
   # Deploy resources and test
-  - ps: ./src/arm/Deploy-AzureResourceGroup.ps1 -ArtifactStagingDirectory src/arm -ResourceGroupName "$env:AZ_RG_INT_PREFIX$env:APPVEYOR_BUILD_NUMBER" -ResourceGroupLocation $env:AZ_LOCATION -OtherParams @{ resourcePrefix = "$env:AZ_RG_INT_PREFIX$env:APPVEYOR_BUILD_NUMBER"; branch = "$env:AZ_RG_INT_PREFIX$env:APPVEYOR_BUILD_NUMBER"; includeSourceControlDeployment = "yes"; } -UploadArtifacts
+  - ps: ./src/arm/Deploy-AzureResourceGroup.ps1 -ArtifactStagingDirectory src/arm -ResourceGroupName "$env:AZ_RG_INT_PREFIX$env:APPVEYOR_BUILD_NUMBER" -ResourceGroupLocation $env:AZ_LOCATION -OtherParams @{ resourcePrefix = "$env:AZ_RG_INT_PREFIX$env:APPVEYOR_BUILD_NUMBER"; branch = "$env:AZ_RG_INT_PREFIX$env:APPVEYOR_BUILD_NUMBER"; includeSourceControlDeployment = "yes"; } -UploadArtifacts -StorageAccountName $env:AZ_ARM_STORAGE_ACCOUNT_NAME
   - ps: if ($LastExitCode -ne 0) { $host.SetShouldExit($LastExitCode) }
 
   # Test
