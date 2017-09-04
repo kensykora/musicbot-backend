@@ -6,9 +6,6 @@
   "directories": {
     "test": "test"
   },
-  "dependencies": {
-    "chakram": "^1.5.0"
-  },
   "devDependencies": {
     "chakram": "^1.5.0"
   },
