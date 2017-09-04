@@ -14,7 +14,7 @@ namespace MusicBot.Functions
     public static class Play
     {
         [FunctionName("play")]
-        public static async Task<HttpResponseMessage> Run(
+        public static HttpResponseMessage Run(
             [HttpTrigger(AuthorizationLevel.Anonymous, "POST", Route = null)] HttpRequestMessage req, TraceWriter log)
         {
             log.Info("Play Request");
