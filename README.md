@@ -21,4 +21,6 @@
 1. Update your `src/func/local.settings.json` file with your App's Verification Token (retrieve from <https://api.slack.com/apps/<YOUR APP ID>/general> 
 1. Start invoking commands.
 
-For local development, recommend setting up your bot to trigger a URL via .
+## Deployment
+
+Dev and Prod are configured as github deployments to functions app. Thus, the linked template chooses not to include the functions deployment. For setting up dev and prod, manual deployment steps are required for pointing the functions app at the github for the `dev` and `prod` branches respectively.
