@@ -1,10 +1,8 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Reflection;
 
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
@@ -24,8 +22,7 @@ namespace MusicBot.Functions
             return req.CreateResponse(HttpStatusCode.OK,
                 new
                 {
-                    version = FileVersionInfo.GetVersionInfo(Assembly.GetAssembly(typeof(Config)).Location)
-                        .FileVersion
+                    version = Config.Instance.Version
                 });
         }
     }

@@ -6,10 +6,11 @@ environment:
   AZ_AD_SP_PASS:
     secure: QBSDpMZyT8QNWCo1R8M6o7+Umvo61xZjMnRIAp2a/eM=
   AZ_LOCATION: eastus
-  AZ_RG_BUILD: MUSIC-BOT-BUILD
-  AZ_RG_DEV: MUSIC-BOT-DEV
   AZ_RG_INT_PREFIX: MUSIC-BOT-INT-
+  AZ_RG_DEV: MUSIC-BOT-DEV
+  DEV_BRANCH_NAME: dev
   AZ_RG_PROD: MUSIC-BOT-PROD
+  PROD_BRANCH_NAME: prod
   GIT_ACCESS_TOKEN:
     secure: /8nuu389OsrB4Ylkb0aM6AsXqVTYfhqMibLEH8SZDNAEOIMPe2SiR8Im/jFX6rQ2
 image: Visual Studio 2017 Preview
@@ -31,6 +32,7 @@ notifications:
       secure: MdVvSoK8ot0oaTh3xGuB2aPFuI64lu++kQAg0VYxdhsInJUIxOtZGwQng2wJLBMpNCl1NDnx+cooq8D945ICEe+/OsvKybd1rSWR6zPxqZA=
     on_build_failure: true
     on_build_status_changed: true
+    on_build_success: false
 install:
   - npm install -g mocha
   - npm install -g mocha-multi-reporters
@@ -64,12 +66,12 @@ build_script:
   - ps: $wc.UploadFile("https://ci.appveyor.com/api/testresults/junit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path test-results.xml))
 on_success:
   # Deploy to Azure Functions Dev
-  - git add .
-  - git config user.email "ken.sykora@gmail.com"
-  - git config user.name "Ken Sykora"
-  - git commit -m "version info patching %AZ_RG_INT_PREFIX%%APPVEYOR_BUILD_NUMBER%"
-  - git push origin %AZ_RG_INT_PREFIX%%APPVEYOR_BUILD_NUMBER%
-  - ps: ./src/arm/Deploy-AzureResourceGroup.ps1 -ArtifactStagingDirectory src/arm -ResourceGroupName "$env:AZ_RG_DEV" -ResourceGroupLocation $env:AZ_LOCATION -OtherParams @{ resourcePrefix = "$env:AZ_RG_DEV"; branch = "$env:AZ_RG_INT_PREFIX$env:APPVEYOR_BUILD_NUMBER"; }
+  - ps: ./src/arm/Deploy-AzureResourceGroup.ps1 -ArtifactStagingDirectory src/arm -ResourceGroupName "$env:AZ_RG_DEV" -ResourceGroupLocation $env:AZ_LOCATION -OtherParams @{ resourcePrefix = "$env:AZ_RG_DEV"; branch = "$env:DEV_BRANCH_NAME"; }
+  - git stash
+  - git checkout dev
+  - git merge master
+  - git push origin dev
+  - ps: ./src/arm/Update-VersionSettings.ps1 -ResourceGroupName "$env:AZ_RG_DEV" -AppServiceName "$env:AZ_RG_DEV-APP" -VersionNumber "$env:VERSION.$env:APPVEYOR_BUILD_NUMBER"
 on_finish:
   - git push origin --delete %AZ_RG_INT_PREFIX%%APPVEYOR_BUILD_NUMBER%
   - ps: Remove-AzureRmResourceGroup -Name $env:AZ_RG_INT_PREFIX$env:APPVEYOR_BUILD_NUMBER -Force
