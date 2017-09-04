@@ -64,12 +64,9 @@ build_script:
   - ps: $wc.UploadFile("https://ci.appveyor.com/api/testresults/junit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path test-results.xml))
 on_success:
   # Deploy to Azure Functions Dev
+  - git commit -m "version info patching"
+  - git push origin %AZ_RG_INT_PREFIX%%APPVEYOR_BUILD_NUMBER%
   - ps: ./src/arm/Deploy-AzureResourceGroup.ps1 -ArtifactStagingDirectory src/arm -ResourceGroupName "$env:AZ_RG_DEV" -ResourceGroupLocation $env:AZ_LOCATION -OtherParams @{ resourcePrefix = "$env:AZ_RG_DEV"; branch = "$env:AZ_RG_INT_PREFIX$env:APPVEYOR_BUILD_NUMBER"; }
 on_finish:
-  - ps: Remove-AzureRmResourceGroup -Name $env:AZ_RG_INT_PREFIX$env:APPVEYOR_BUILD_NUMBER -Force
   - git push origin --delete %AZ_RG_INT_PREFIX%%APPVEYOR_BUILD_NUMBER%
-artifacts:
-  - path: src/arm
-    name: ARM Templates
-  - path: src/func/MusicBot-Functions.zip
-    name: Functions App
+  - ps: Remove-AzureRmResourceGroup -Name $env:AZ_RG_INT_PREFIX$env:APPVEYOR_BUILD_NUMBER -Force
