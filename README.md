@@ -24,3 +24,7 @@
 ## Deployment
 
 Dev and Prod are configured as github deployments to functions app. Thus, the linked template chooses not to include the functions deployment. For setting up dev and prod, manual deployment steps are required for pointing the functions app at the github for the `dev` and `prod` branches respectively.
+
+Deployments to dev simply need to be passing builds.
+
+Deployments to prod are triggered by tagging 'prod' and pushing to github.

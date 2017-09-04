@@ -43,6 +43,8 @@ before_build:
   - ps: $cred = New-Object -TypeName pscredential -ArgumentList $env:AZ_AD_SP_ID, $pass
   - ps: Login-AzureRmAccount -Credential $cred -ServicePrincipal -TenantId $env:AZ_AD_TENANT
 build_script: 
+  # Skip build if it's a production tag
+  - ps: if($env:APPVEYOR_REPO_TAG -eq 'true' -and $env:APPVEYOR_REPO_TAG_NAME -eq 'prod') { $host.SetShouldExit(0) }
   # Restore and build
   - nuget restore
   - msbuild MusicBot.Backend.sln /p:Configuration=Release /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
@@ -65,14 +67,8 @@ build_script:
   - ps: $wc = New-Object 'System.Net.WebClient'
   - ps: $wc.UploadFile("https://ci.appveyor.com/api/testresults/junit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path test-results.xml))
 deploy_script:
-  # Deploy to Azure
-  - ps: ./src/arm/Deploy-AzureResourceGroup.ps1 -ArtifactStagingDirectory src/arm -ResourceGroupName "$env:AZ_RG_DEV" -ResourceGroupLocation $env:AZ_LOCATION -OtherParams @{ resourcePrefix = "$env:AZ_RG_DEV"; branch = "$env:DEV_BRANCH_NAME"; } -UploadArtifacts
-  - git checkout .
-  - git checkout dev
-  - git merge master
-  - git push origin dev
-  - ps: ./src/arm/Update-VersionSetting.ps1 -ResourceGroupName "$env:AZ_RG_DEV" -AppServiceName "$env:AZ_RG_DEV-APP" -VersionNumber "$env:VERSION.$env:APPVEYOR_BUILD_NUMBER"
-  
+  # Deploy to Azure - Dev 
+  - ps: if($env:APPVEYOR_REPO_TAG -eq 'true' -and $env:APPVEYOR_REPO_TAG_NAME -eq 'prod')  { ./src/arm/Deploy-Environment.ps1 -ResourceGroupName $env:AZ_RG_PROD -ResourceGroupLocation $env:AZ_LOCATION -ResourcePrefix $env:AZ_RG_PROD -Branch $env:PROD_BRANCH_NAME -Version "$env:VERSION.$env:APPVEYOR_BUILD_NUMBER" } else if ($env:APPVEYOR_REPO_TAG -eq 'false') { ./src/arm/Deploy-Environment.ps1 -ResourceGroupName $env:AZ_RG_DEV -ResourceGroupLocation $env:AZ_LOCATION -ResourcePrefix $env:AZ_RG_DEV -Branch $env:DEV_BRANCH_NAME -Version "$env:VERSION.$env:APPVEYOR_BUILD_NUMBER" } else { Write-Host "Non-Prod tagged commit, skipping deployment." }
 on_finish:
   - git push origin --delete %AZ_RG_INT_PREFIX%%APPVEYOR_BUILD_NUMBER%
   - ps: Remove-AzureRmResourceGroup -Name $env:AZ_RG_INT_PREFIX$env:APPVEYOR_BUILD_NUMBER -Force
