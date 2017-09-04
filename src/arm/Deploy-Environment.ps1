@@ -6,7 +6,6 @@ param(
     [string] [Parameter(Mandatory=$true)]  $Version,
     [string] [Parameter(Mandatory=$true)]  $StorageAccountName
 )
-$ErrorActionPreference = 'Stop'
 ./src/arm/Deploy-AzureResourceGroup.ps1 -ResourceGroupName "$ResourceGroupName" -ResourceGroupLocation $ResourceGroupLocation -OtherParams @{ resourcePrefix = $ResourcePrefix; branch = $Branch; includeSourceControlDeployment = "no" } -UploadArtifacts -StorageAccountName $StorageAccountName
 git checkout .
 git checkout $Branch 2>&1
