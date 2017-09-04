@@ -55,7 +55,7 @@ build_script:
   - ps: Stop-Job $funcJob
 
   # If this is a PR, we're done
-  - ps: if ($env:APPVEYOR_PULL_REQUEST_NUMBER -neq '') { Exit-AppVeyorBuild }
+  - ps: if ($env:APPVEYOR_PULL_REQUEST_NUMBER -ne '') { Exit-AppVeyorBuild }
 
   # Prep for integration test - push branch to github
   - git config --global credential.helper store
