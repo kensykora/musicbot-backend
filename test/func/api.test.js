@@ -2,12 +2,13 @@ chakram = require('chakram');
 expect = chakram.expect;
 
 var baseUrl = process.env.BASE_URL == null ? "http://localhost:7071/api" : process.env.BASE_URL;
+var testType = process.env.TEST_TYPE == null ? "local" : process.env.TEST_TYPE
 
 function pathTo(path) {
     return baseUrl + path
 }
 
-describe("Calling Play", function() {
+describe(testType + " - Calling Play", function() {
 
     var playCall;
 

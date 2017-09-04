@@ -39,7 +39,7 @@ notifications:
 install:
   - npm install -g mocha
   - npm install -g mocha-multi-reporters
-  - npm install -g mocha-junit-reporter
+  - npm install -g mocha-appveyor-reporter
   - npm install -g azure-functions-core-tools
   - npm install
 build_script: 
@@ -51,11 +51,12 @@ build_script:
   - ps: $funcDir = $(pwd).Path + '\src\func\bin\Release\Net47'
   - ps: $funcJob = Start-Job -FilePath .\test\func\Start-FuncHost.ps1 -ArgumentList $funcDir
   - ps: Start-Sleep -s 15 # give it some startup time
+  - SET TEST_TYPE=local
   - >
       mocha --slow %MOCHA_SLOW_THRESHOLD_MS% 
       --timeout %MOCHA_TIMEOUT_THRESHOLD_MS%
       --reporter mocha-multi-reporters
-      --reporter-options configFile=test/func/local-mocha-reporter-config.json
+      --reporter-options configFile=test/func/build-mocha-reporter-config.json
       test/func
 
   - ps: Stop-Job $funcJob 
@@ -90,11 +91,12 @@ build_script:
 
   # Test on Azure
   - set BASE_URL=https://%AZ_RG_INT_PREFIX%%APPVEYOR_BUILD_NUMBER%-APP.azurewebsites.net/api
+  - SET TEST_TYPE=integration
   - >
       mocha --slow %MOCHA_SLOW_THRESHOLD_MS% 
       --timeout %MOCHA_TIMEOUT_THRESHOLD_MS% 
       --reporter mocha-multi-reporters 
-      --reporter-options configFile=test/func/integration-mocha-reporter-config.json
+      --reporter-options configFile=test/func/build-mocha-reporter-config.json
       test/func
 deploy_script:
   # Deploy to Azure - Dev, or Prod on tag
