@@ -79,7 +79,7 @@ if ($UploadArtifacts) {
     # Copy files from the local storage staging location to the storage account container
     New-AzureStorageContainer -Name $StorageContainerName -Context $StorageAccount.Context -ErrorAction SilentlyContinue *>&1
 
-    $ArtifactFilePaths = Get-ChildItem $ArtifactStagingDirectory -Recurse -File | ForEach-Object -Process {$_.FullName}
+    $ArtifactFilePaths = Get-ChildItem $ArtifactStagingDirectory -Recurse -File | Where-Object { $_.Extension -eq '.json' -and $_.BaseName.StartsWith('_') } | ForEach-Object -Process {$_.FullName}
     foreach ($SourcePath in $ArtifactFilePaths) {
         Set-AzureStorageBlobContent -File $SourcePath -Blob $SourcePath.Substring($ArtifactStagingDirectory.length + 1) `
             -Container $StorageContainerName -Context $StorageAccount.Context -Force
