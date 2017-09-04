@@ -112,6 +112,7 @@ if ($ValidateOnly) {
     }
     else {
         Write-Output '', 'Template is valid.'
+        exit 0;
     }
 }
 else {
@@ -127,5 +128,6 @@ else {
 		throw 'Failed'
     } else {
         Write-Output 'Deployment Successful'
+        exit 0;
     }
 }
