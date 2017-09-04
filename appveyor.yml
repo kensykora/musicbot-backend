@@ -1,24 +1,6 @@
-version: 1.0.0
-image: Visual Studio 2017 Preview
-assembly_info:
-  patch: true
-  assembly_version: $(APPVEYOR_BUILD_VERSION).$(APPVEYOR_BUILD_NUMBER)
-  assembly_file_version: $(APPVEYOR_BUILD_VERSION).$(APPVEYOR_BUILD_NUMBER)
-  assembly_informational_version: $(APPVEYOR_BUILD_VERSION).$(APPVEYOR_BUILD_NUMBER)
-dotnet_csproj:
-  patch: true
-  version: $(APPVEYOR_BUILD_VERSION).$(APPVEYOR_BUILD_NUMBER)
-  package_version: $(APPVEYOR_BUILD_VERSION)
-branches:
-  only:
-    - master
-notifications:
-  - provider: Slack
-    incoming_webhook:
-      secure: MdVvSoK8ot0oaTh3xGuB2aPFuI64lu++kQAg0VYxdhsInJUIxOtZGwQng2wJLBMpNCl1NDnx+cooq8D945ICEe+/OsvKybd1rSWR6zPxqZA=
-    on_build_failure: true
-    on_build_status_changed: true
+version: 1.0.0.{build}
 environment:
+  VERSION: 1.0.0
   AZ_AD_SP_ID: http://musicbotsvc
   AZ_AD_TENANT: 46947e84-c7c5-4572-bf44-0c0b2d9013b8
   AZ_AD_SP_PASS:
@@ -30,6 +12,25 @@ environment:
   AZ_RG_PROD: MUSIC-BOT-PROD
   GIT_ACCESS_TOKEN:
     secure: /8nuu389OsrB4Ylkb0aM6AsXqVTYfhqMibLEH8SZDNAEOIMPe2SiR8Im/jFX6rQ2
+image: Visual Studio 2017 Preview
+assembly_info:
+  patch: true
+  assembly_version: $(VERSION).$(APPVEYOR_BUILD_NUMBER)
+  assembly_file_version: $(VERSION).$(APPVEYOR_BUILD_NUMBER)
+  assembly_informational_version: $(VERSION).$(APPVEYOR_BUILD_NUMBER)
+dotnet_csproj:
+  patch: true
+  version: $(VERSION).$(APPVEYOR_BUILD_NUMBER)
+  package_version: $(VERSION)
+branches:
+  only:
+    - master
+notifications:
+  - provider: Slack
+    incoming_webhook:
+      secure: MdVvSoK8ot0oaTh3xGuB2aPFuI64lu++kQAg0VYxdhsInJUIxOtZGwQng2wJLBMpNCl1NDnx+cooq8D945ICEe+/OsvKybd1rSWR6zPxqZA=
+    on_build_failure: true
+    on_build_status_changed: true
 install:
   - npm install -g mocha
   - npm install -g mocha-multi-reporters
