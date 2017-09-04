@@ -50,6 +50,7 @@ build_script:
   # Test locally
   - ps: $funcDir = $(pwd).Path + '\src\func\bin\Release\Net47'
   - ps: $funcJob = Start-Job -FilePath .\test\func\Start-FuncHost.ps1 -ArgumentList $funcDir
+  - ps: Start-Sleep -s 5 # give it some startup time
   - mocha --slow %MOCHA_SLOW_THRESHOLD_MS% --timeout %MOCHA_TIMEOUT_THRESHOLD_MS% test/func --reporter mocha-multi-reporters --reporter-options configFile=test/func/mocha-multi-reporters-config.json
   - ps: Stop-Job $funcJob
 
