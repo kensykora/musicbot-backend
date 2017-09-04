@@ -51,7 +51,12 @@ build_script:
   - ps: $funcDir = $(pwd).Path + '\src\func\bin\Release\Net47'
   - ps: $funcJob = Start-Job -FilePath .\test\func\Start-FuncHost.ps1 -ArgumentList $funcDir
   - ps: Start-Sleep -s 5 # give it some startup time
-  - mocha --slow %MOCHA_SLOW_THRESHOLD_MS% --timeout %MOCHA_TIMEOUT_THRESHOLD_MS% test/func --reporter mocha-multi-reporters --reporter-options configFile=test/func/mocha-multi-reporters-config.json
+  - >
+      mocha --slow %MOCHA_SLOW_THRESHOLD_MS% 
+      --timeout %MOCHA_TIMEOUT_THRESHOLD_MS%
+      --reporter mocha-multi-reporters
+      --reporter-options configFile=test/func/mocha-multi-reporters-config.json
+      test/func
   - ps: Stop-Job $funcJob
 
   # Upload test results
@@ -71,12 +76,27 @@ build_script:
   - ps: $pass = ConvertTo-SecureString $env:AZ_AD_SP_PASS -AsPlainText -Force
   - ps: $cred = New-Object -TypeName pscredential -ArgumentList $env:AZ_AD_SP_ID, $pass
   - ps: Login-AzureRmAccount -Credential $cred -ServicePrincipal -TenantId $env:AZ_AD_TENANT
-  - ps: ./src/arm/Deploy-AzureResourceGroup.ps1 -ResourceGroupName "$env:AZ_RG_INT_PREFIX$env:APPVEYOR_BUILD_NUMBER" -ResourceGroupLocation $env:AZ_LOCATION -OtherParams @{ resourcePrefix = "$env:AZ_RG_INT_PREFIX$env:APPVEYOR_BUILD_NUMBER"; branch = "$env:AZ_RG_INT_PREFIX$env:APPVEYOR_BUILD_NUMBER"; includeSourceControlDeployment = "yes"; } -UploadArtifacts -StorageAccountName $env:AZ_ARM_STORAGE_ACCOUNT_NAME
+  - ps: |
+      ./src/arm/Deploy-AzureResourceGroup.ps1 `
+        -ResourceGroupName "$env:AZ_RG_INT_PREFIX$env:APPVEYOR_BUILD_NUMBER" `
+        -ResourceGroupLocation $env:AZ_LOCATION `
+        -OtherParams @{ `
+          resourcePrefix = "$env:AZ_RG_INT_PREFIX$env:APPVEYOR_BUILD_NUMBER"; `
+          branch = "$env:AZ_RG_INT_PREFIX$env:APPVEYOR_BUILD_NUMBER"; `
+          includeSourceControlDeployment = "yes"; `
+        } `
+        -UploadArtifacts `
+        -StorageAccountName $env:AZ_ARM_STORAGE_ACCOUNT_NAME
   - ps: if ($LastExitCode -ne 0) { throw }
 
   # Test on Azure
   - set BASE_URL=https://%AZ_RG_INT_PREFIX%%APPVEYOR_BUILD_NUMBER%-APP.azurewebsites.net/api
-  - mocha --slow %MOCHA_SLOW_THRESHOLD_MS% --timeout %MOCHA_TIMEOUT_THRESHOLD_MS% test/func --reporter mocha-multi-reporters --reporter-options configFile=test/func/mocha-multi-reporters-config.json
+  - >
+      mocha --slow %MOCHA_SLOW_THRESHOLD_MS% 
+      --timeout %MOCHA_TIMEOUT_THRESHOLD_MS% 
+      --reporter mocha-multi-reporters 
+      --reporter-options configFile=test/func/mocha-multi-reporters-config.json
+      test/func
 
   # Upload test results
   - ps: $wc = New-Object 'System.Net.WebClient'
