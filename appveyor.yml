@@ -51,18 +51,18 @@ build_script:
   - ps: $funcDir = $(pwd).Path + '\src\func\bin\Release\Net47'
   - ps: $funcJob = Start-Job -FilePath .\test\func\Start-FuncHost.ps1 -ArgumentList $funcDir
   - ps: Start-Sleep -s 15 # give it some startup time
-  - ps: Receive-Job $funcJob 2>&1
   - >
       mocha --slow %MOCHA_SLOW_THRESHOLD_MS% 
       --timeout %MOCHA_TIMEOUT_THRESHOLD_MS%
       --reporter mocha-multi-reporters
       --reporter-options configFile=test/func/mocha-multi-reporters-config.json
       test/func
-  - ps: Stop-Job $funcJob
 
   # Upload test results
   - ps: $wc = New-Object 'System.Net.WebClient'
   - ps: $wc.UploadFile("https://ci.appveyor.com/api/testresults/junit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path test-results.xml))
+
+  - ps: Stop-Job $funcJob 
 
   # If this is a PR, we're done
   - ps: if ($env:APPVEYOR_PULL_REQUEST_NUMBER -ne $null) { Exit-AppVeyorBuild }
@@ -72,11 +72,13 @@ build_script:
   - ps: Add-Content "$env:USERPROFILE\.git-credentials" "https://$($env:GIT_ACCESS_TOKEN):x-oauth-basic@github.com`n"
   - git checkout -b %AZ_RG_INT_PREFIX%%APPVEYOR_BUILD_NUMBER%
   - git push -u origin %AZ_RG_INT_PREFIX%%APPVEYOR_BUILD_NUMBER%
+  - ps: $PushedBranch = $true
 
   # Deploy resources to Azure for integration testing
   - ps: $pass = ConvertTo-SecureString $env:AZ_AD_SP_PASS -AsPlainText -Force
   - ps: $cred = New-Object -TypeName pscredential -ArgumentList $env:AZ_AD_SP_ID, $pass
   - ps: Login-AzureRmAccount -Credential $cred -ServicePrincipal -TenantId $env:AZ_AD_TENANT
+  - ps: $DeployedIntegrationEnvironment = $true
   - ps: |
       ./src/arm/Deploy-AzureResourceGroup.ps1 `
         -ResourceGroupName "$env:AZ_RG_INT_PREFIX$env:APPVEYOR_BUILD_NUMBER" `
@@ -103,7 +105,18 @@ build_script:
   - ps: $wc = New-Object 'System.Net.WebClient'
   - ps: $wc.UploadFile("https://ci.appveyor.com/api/testresults/junit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path test-results.xml))
 after_build:
+  # Stop the functions job if it's running
   - ps: if ($funcJob.State -ne 'Stopped') { Stop-Job $funcJob }
+
+  # Upload
+  - ps: $wc = New-Object 'System.Net.WebClient'
+  - ps: $wc.UploadFile("https://ci.appveyor.com/api/testresults/junit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path test-results.xml))
+
+  # Tear down Azure Integration environment
+  - ps: if ($DeployedIntegrationEnvironment) { Remove-AzureRmResourceGroup -Name $env:AZ_RG_INT_PREFIX$env:APPVEYOR_BUILD_NUMBER -Force }
+
+  # Tear down pushed branch
+  - ps: if ($PushedBranch) { git push origin --delete $env:AZ_RG_INT_PREFIX$env:APPVEYOR_BUILD_NUMBER }
 before_deploy:
   - ps: $pass = ConvertTo-SecureString $env:AZ_AD_SP_PASS -AsPlainText -Force
   - ps: $cred = New-Object -TypeName pscredential -ArgumentList $env:AZ_AD_SP_ID, $pass
@@ -131,11 +144,4 @@ deploy_script:
           -StorageAccountName $env:AZ_ARM_STORAGE_ACCOUNT_NAME; 
       } else { 
         Write-Host "Non-Prod tagged commit, skipping deployment." 
-      }
-on_finish:
-  # On non-PRs, remove git and azure resources
-  - ps: | 
-      if ($env:APPVEYOR_PULL_REQUEST_NUMBER -ne $null) { 
-         git push origin --delete $env:AZ_RG_INT_PREFIX$env:APPVEYOR_BUILD_NUMBER
-         Remove-AzureRmResourceGroup -Name $env:AZ_RG_INT_PREFIX$env:APPVEYOR_BUILD_NUMBER -Force
       }
