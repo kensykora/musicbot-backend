@@ -71,7 +71,7 @@ on_success:
   - git checkout dev
   - git merge master
   - git push origin dev
-  - ps: ./src/arm/Update-VersionSettings.ps1 -ResourceGroupName "$env:AZ_RG_DEV" -AppServiceName "$env:AZ_RG_DEV-APP" -VersionNumber "$env:VERSION.$env:APPVEYOR_BUILD_NUMBER"
+  - ps: ./src/arm/Update-VersionSetting.ps1 -ResourceGroupName "$env:AZ_RG_DEV" -AppServiceName "$env:AZ_RG_DEV-APP" -VersionNumber "$env:VERSION.$env:APPVEYOR_BUILD_NUMBER"
 on_finish:
   - git push origin --delete %AZ_RG_INT_PREFIX%%APPVEYOR_BUILD_NUMBER%
   - ps: Remove-AzureRmResourceGroup -Name $env:AZ_RG_INT_PREFIX$env:APPVEYOR_BUILD_NUMBER -Force
