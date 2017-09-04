@@ -2,6 +2,23 @@
 
 [![Build status](https://ci.appveyor.com/api/projects/status/343h8hq0wkymm42i?svg=true)](https://ci.appveyor.com/project/kensykora/musicbot-backend)
 
-## Deploying
+## Slack App Setup for local development
 
-App automatically deploys to dev on successful build. Deploy to prod by merging into `prod` branch
+1. Create a new slack app (<https://api.slack.com/>)
+1. Setup Icon, Description, etc.
+1. Add a slash command: `https://api.slack.com/apps/<your app id>/slash-commands`
+
+    Command: `/mb[-suffix]` where `-suffix` is optionally a suffix to specifically identify you. Useful when multiple bots in the same server.  
+    Request Url: `<Base URL>/api/command` (e.g., `https://music-bot-dev-app.azurewebsites.net/api/command`)  
+    Description: Control your music  
+    Usage Hint: play, pause  
+    Escape Channels: `checked`
+
+1. Invite your bot to the server: `https://api.slack.com/apps/<your app id>/install-on-team`
+1. Start your functions host (Open Visual Studio solution, build and run)
+1. Start your reverse proxy (download and install <https://ngrok.com/> client)
+1. Update your slash command above with the base URL from ngrok.
+1. Update your `src/func/local.settings.json` file with your App's Verification Token (retrieve from <https://api.slack.com/apps/<YOUR APP ID>/general> 
+1. Start invoking commands.
+
+For local development, recommend setting up your bot to trigger a URL via .
