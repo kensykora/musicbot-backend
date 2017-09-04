@@ -51,7 +51,7 @@ build_script:
   - ps: $funcDir = $(pwd).Path + '\src\func\bin\Release\Net47'
   - ps: $funcJob = Start-Job -FilePath .\test\func\Start-FuncHost.ps1 -ArgumentList $funcDir
   - ps: Start-Sleep -s 15 # give it some startup time
-  - ps: Receive-Job $funcJob -ErrorAction Ignore
+  - ps: Receive-Job $funcJob 2>&1
   - >
       mocha --slow %MOCHA_SLOW_THRESHOLD_MS% 
       --timeout %MOCHA_TIMEOUT_THRESHOLD_MS%
