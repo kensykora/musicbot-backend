@@ -130,16 +130,4 @@ on_finish:
   - ps: if ($DeployedIntegrationEnvironment) { Remove-AzureRmResourceGroup -Name $env:AZ_RG_INT_PREFIX$env:APPVEYOR_BUILD_NUMBER -Force }
 
   # Tear down pushed branch
-  - ps: if ($PushedBranch) { git push origin --delete $env:AZ_RG_INT_PREFIX$env:APPVEYOR_BUILD_NUMBER }
-
-  # Upload test results
-  - ps: |
-      if (Test-Path .\local-test-results.xml) {
-        $wc = New-Object 'System.Net.WebClient'
-        $wc.UploadFile("https://ci.appveyor.com/api/testresults/junit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path .\local-test-results.xml))
-      }
-  - ps: |
-      if (Test-Path .\integration-test-results.xml) {
-        $wc = New-Object 'System.Net.WebClient'
-        $wc.UploadFile("https://ci.appveyor.com/api/testresults/junit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path .\integration-test-results.xml))
-      }
+  - ps: if ($PushedBranch) { git push origin --delete $env:AZ_RG_INT_PREFIX$env:APPVEYOR_BUILD_NUMBER 2>&1 }
