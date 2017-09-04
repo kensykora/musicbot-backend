@@ -43,7 +43,7 @@ before_build:
 build_script: 
   # Restore and build
   - nuget restore
-  - msbuild MusicBot.Backend.sln /p:Configuration=Release /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" /p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="MusicBot-Functions.zip"
+  - msbuild MusicBot.Backend.sln /p:Configuration=Release /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
 
   # Prep for integration test - push branch to github
   - git config --global credential.helper store
