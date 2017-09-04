@@ -125,5 +125,7 @@ else {
     if ($ErrorMessages) {
         Write-Error '', 'Template deployment returned the following errors:', @(@($ErrorMessages) | ForEach-Object { $_.Exception.Message.TrimEnd("`r`n") })
 		throw 'Failed'
+    } else {
+        Write-Output 'Deployment Successful'
     }
 }
