@@ -90,7 +90,7 @@ build_script:
         } `
         -UploadArtifacts `
         -StorageAccountName $env:AZ_ARM_STORAGE_ACCOUNT_NAME
-  - ps: if ($LastExitCode -ne 0) { throw "Azure Script did not complete successfully" }
+  - ps: if (-not $env:LastAzureDeploySuccessful) { throw "Azure Script did not complete successfully" }
 
   # Test on Azure
   - set BASE_URL=https://%AZ_RG_INT_PREFIX%%APPVEYOR_BUILD_NUMBER%-APP.azurewebsites.net/api

@@ -108,10 +108,12 @@ if ($ValidateOnly) {
                                                                                   @OptionalParameters)
     if ($ErrorMessages) {
         Write-Error '', 'Validation returned the following errors:', @($ErrorMessages), '', 'Template is invalid.'
+        $env:LastAzureDeploySuccessful = $false
 		throw 'Failed'
     }
     else {
         Write-Output '', 'Template is valid.'
+        $env:LastAzureDeploySuccessful = $true
         exit 0;
     }
 }
@@ -125,9 +127,11 @@ else {
                                        -ErrorVariable ErrorMessages
     if ($ErrorMessages) {
         Write-Error '', 'Template deployment returned the following errors:', @(@($ErrorMessages) | ForEach-Object { $_.Exception.Message.TrimEnd("`r`n") })
+        $env:LastAzureDeploySuccessful = $false
 		throw 'Failed'
     } else {
         Write-Output 'Deployment Successful'
+        $env:LastAzureDeploySuccessful = $true
         exit 0;
     }
 }
