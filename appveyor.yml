@@ -21,7 +21,7 @@ for:
   environment:
     SKIP_INTEGRATION_TEST: 'false'
     AZ_RG: MUSIC-BOT-DEV
-    BRANCH_NAME: master
+    BRANCH_NAME: dev
 
 - branches:
     only:
