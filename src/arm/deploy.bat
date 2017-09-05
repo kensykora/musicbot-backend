@@ -1,4 +1,3 @@
-$env: -eq $env: -and $env: -eq $null
 if "%APPVEYOR_REPO_BRANCH%" == "%PROD_BRANCH_NAME%" (
   if "%APPVEYOR_PULL_REQUEST_NUMBER%" == "" (  
     echo "Deploying to Production";
