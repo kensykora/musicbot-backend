@@ -102,7 +102,7 @@ deploy_script:
   # Deploy to Azure - Dev, or Prod on tag
   - src\arm\deploy.bat
   - ps: |
-      if ($env:APPVEYOR_REPO_TAG -eq 'true' -and $env:APPVEYOR_REPO_TAG_NAME -eq 'prod') {
+      if ($env:APPVEYOR_REPO_TAG -eq 'true' -and $env:APPVEYOR_REPO_TAG_NAME -eq 'deploy_prod') {
         ./src/arm/Deploy-AzureResourceGroup.ps1 `
           -ResourceGroupName $env:AZ_RG_PROD `
           -ResourceGroupLocation $env:AZ_LOCATION `
