@@ -110,13 +110,13 @@ deploy_script:
             resourcePrefix = $env:AZ_RG_PROD; `
             branch = $env:PROD_BRANCH_NAME; `
             includeSourceControlDeployment = 'no' `
-          }
+          } `
           -UploadArtifacts `
           -StorageAccountName $env:AZ_ARM_STORAGE_ACCOUNT_NAME;
-          ./src/arm/Update-VersionSetting.ps1 `
-            -ResourceGroupName $env:AZ_RG_PROD `
-            -AppServiceName $env:AZ_RG_PROD-APP `
-            -VersionNumber $env:VERSION$env:APPVEYOR_BUILD_NUMBER;
+        ./src/arm/Update-VersionSetting.ps1 `
+          -ResourceGroupName $env:AZ_RG_PROD `
+          -AppServiceName $env:AZ_RG_PROD-APP `
+          -VersionNumber $env:VERSION$env:APPVEYOR_BUILD_NUMBER;
       } elseif ($env:APPVEYOR_REPO_TAG -eq 'false') {
         ./src/arm/Deploy-AzureResourceGroup.ps1 `
           -ResourceGroupName $env:AZ_RG_DEV `
@@ -125,13 +125,13 @@ deploy_script:
             resourcePrefix = $env:AZ_RG_DEV; `
             branch = $env:DEV_BRANCH_NAME; `
             includeSourceControlDeployment = 'no' `
-          }
+          } `
           -UploadArtifacts `
           -StorageAccountName $env:AZ_ARM_STORAGE_ACCOUNT_NAME;
-          ./src/arm/Update-VersionSetting.ps1 `
-            -ResourceGroupName $env:AZ_RG_PROD `
-            -AppServiceName $env:AZ_RG_PROD-APP `
-            -VersionNumber $env:VERSION$env:APPVEYOR_BUILD_NUMBER;
+        ./src/arm/Update-VersionSetting.ps1 `
+          -ResourceGroupName $env:AZ_RG_PROD `
+          -AppServiceName $env:AZ_RG_PROD-APP `
+          -VersionNumber $env:VERSION$env:APPVEYOR_BUILD_NUMBER;
       }
 on_finish:
   # Stop the functions job if it's running
