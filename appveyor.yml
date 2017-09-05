@@ -100,6 +100,9 @@ build_script:
   #    test/func
 deploy_script:
   # Deploy to Azure - Dev, or Prod on tag
+  - ps: $pass = ConvertTo-SecureString $env:AZ_AD_SP_PASS -AsPlainText -Force
+  - ps: $cred = New-Object -TypeName pscredential -ArgumentList $env:AZ_AD_SP_ID, $pass
+  - ps: Login-AzureRmAccount -Credential $cred -ServicePrincipal -TenantId $env:AZ_AD_TENANT
   - src\arm\deploy.bat
 on_finish:
   # Stop the functions job if it's running
