@@ -65,8 +65,8 @@ build_script:
   - ps: if ($env:APPVEYOR_PULL_REQUEST_NUMBER -ne $null) { Exit-AppVeyorBuild }
 
   # Prep for Azure integration test - push branch to github
-  #- git config --global credential.helper store
-  #- ps: Add-Content "$env:USERPROFILE\.git-credentials" "https://$($env:GIT_ACCESS_TOKEN):x-oauth-basic@github.com`n"
+  - git config --global credential.helper store
+  - ps: Add-Content "$env:USERPROFILE\.git-credentials" "https://$($env:GIT_ACCESS_TOKEN):x-oauth-basic@github.com`n"
   #- git checkout -b %AZ_RG_INT_PREFIX%%APPVEYOR_BUILD_NUMBER%
   #- git push -u origin %AZ_RG_INT_PREFIX%%APPVEYOR_BUILD_NUMBER%
   #- set PushedBranch=true
