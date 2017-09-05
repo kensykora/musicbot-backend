@@ -65,39 +65,39 @@ build_script:
   - ps: if ($env:APPVEYOR_PULL_REQUEST_NUMBER -ne $null) { Exit-AppVeyorBuild }
 
   # Prep for Azure integration test - push branch to github
-  - git config --global credential.helper store
-  - ps: Add-Content "$env:USERPROFILE\.git-credentials" "https://$($env:GIT_ACCESS_TOKEN):x-oauth-basic@github.com`n"
-  - git checkout -b %AZ_RG_INT_PREFIX%%APPVEYOR_BUILD_NUMBER%
-  - git push -u origin %AZ_RG_INT_PREFIX%%APPVEYOR_BUILD_NUMBER%
-  - set PushedBranch=true
+  #- git config --global credential.helper store
+  #- ps: Add-Content "$env:USERPROFILE\.git-credentials" "https://$($env:GIT_ACCESS_TOKEN):x-oauth-basic@github.com`n"
+  #- git checkout -b %AZ_RG_INT_PREFIX%%APPVEYOR_BUILD_NUMBER%
+  #- git push -u origin %AZ_RG_INT_PREFIX%%APPVEYOR_BUILD_NUMBER%
+  #- set PushedBranch=true
 
   # Deploy resources to Azure for integration testing
   - ps: $pass = ConvertTo-SecureString $env:AZ_AD_SP_PASS -AsPlainText -Force
   - ps: $cred = New-Object -TypeName pscredential -ArgumentList $env:AZ_AD_SP_ID, $pass
   - ps: Login-AzureRmAccount -Credential $cred -ServicePrincipal -TenantId $env:AZ_AD_TENANT
-  - ps: $DeployedIntegrationEnvironment = $true
-  - ps: |
-      ./src/arm/Deploy-AzureResourceGroup.ps1 `
-        -ResourceGroupName "$env:AZ_RG_INT_PREFIX$env:APPVEYOR_BUILD_NUMBER" `
-        -ResourceGroupLocation $env:AZ_LOCATION `
-        -OtherParams @{ `
-          resourcePrefix = "$env:AZ_RG_INT_PREFIX$env:APPVEYOR_BUILD_NUMBER"; `
-          branch = "$env:AZ_RG_INT_PREFIX$env:APPVEYOR_BUILD_NUMBER"; `
-          includeSourceControlDeployment = "yes"; `
-        } `
-        -UploadArtifacts `
-        -StorageAccountName $env:AZ_ARM_STORAGE_ACCOUNT_NAME
-  - ps: if (-not $env:LastAzureDeploySuccessful) { throw "Azure Script did not complete successfully" }
+  #- ps: $DeployedIntegrationEnvironment = $true
+  #- ps: |
+  #    ./src/arm/Deploy-AzureResourceGroup.ps1 `
+  #      -ResourceGroupName "$env:AZ_RG_INT_PREFIX$env:APPVEYOR_BUILD_NUMBER" `
+  #      -ResourceGroupLocation $env:AZ_LOCATION `
+  #      -OtherParams @{ `
+  #        resourcePrefix = "$env:AZ_RG_INT_PREFIX$env:APPVEYOR_BUILD_NUMBER"; `
+  #        branch = "$env:AZ_RG_INT_PREFIX$env:APPVEYOR_BUILD_NUMBER"; `
+  #        includeSourceControlDeployment = "yes"; `
+  #      } `
+  #      -UploadArtifacts `
+  #      -StorageAccountName $env:AZ_ARM_STORAGE_ACCOUNT_NAME
+  #- ps: if (-not $env:LastAzureDeploySuccessful) { throw "Azure Script did not complete successfully" }
 
   # Test on Azure
-  - set BASE_URL=https://%AZ_RG_INT_PREFIX%%APPVEYOR_BUILD_NUMBER%-APP.azurewebsites.net/api
-  - SET TEST_TYPE=integration
-  - >
-      mocha --slow %MOCHA_SLOW_THRESHOLD_MS% 
-      --timeout %MOCHA_TIMEOUT_THRESHOLD_MS% 
-      --reporter mocha-multi-reporters 
-      --reporter-options configFile=test/func/build-mocha-reporter-config.json
-      test/func
+  #- set BASE_URL=https://%AZ_RG_INT_PREFIX%%APPVEYOR_BUILD_NUMBER%-APP.azurewebsites.net/api
+  #- SET TEST_TYPE=integration
+  #- >
+  #    mocha --slow %MOCHA_SLOW_THRESHOLD_MS% 
+  #    --timeout %MOCHA_TIMEOUT_THRESHOLD_MS% 
+  #    --reporter mocha-multi-reporters 
+  #    --reporter-options configFile=test/func/build-mocha-reporter-config.json
+  #    test/func
 deploy_script:
   # Deploy to Azure - Dev, or Prod on tag
   - |
