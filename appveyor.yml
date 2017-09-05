@@ -8,14 +8,28 @@ environment:
   AZ_LOCATION: eastus
   AZ_ARM_STORAGE_ACCOUNT_NAME: stageda864e5f18ab4628ac6
   AZ_RG_INT_PREFIX: MUSIC-BOT-INT-
-  AZ_RG_DEV: MUSIC-BOT-DEV
-  DEV_BRANCH_NAME: dev
-  AZ_RG_PROD: MUSIC-BOT-PROD
-  PROD_BRANCH_NAME: prod
   MOCHA_SLOW_THRESHOLD_MS: 1000
   MOCHA_TIMEOUT_THRESHOLD_MS: 10000
   GIT_ACCESS_TOKEN:
     secure: /8nuu389OsrB4Ylkb0aM6AsXqVTYfhqMibLEH8SZDNAEOIMPe2SiR8Im/jFX6rQ2
+
+for:
+
+- branches:
+    only:
+      - master
+  environment:
+    AZ_RG: MUSIC-BOT-DEV
+    BRANCH_NAME: master
+
+- branches:
+    only:
+      - prod
+  environment:
+    AZ_RG: MUSIC-BOT-PROD
+    BRANCH_NAME: prod
+
+
 image: Visual Studio 2017 Preview
 assembly_info:
   patch: true
@@ -46,7 +60,7 @@ install:
 build_script: 
   # Restore and build
   - nuget restore
-  - msbuild MusicBot.Backend.sln /p:Configuration=Release /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
+  - msbuild MusicBot.Backend.sln /p:Configuration=Release /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" /p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:DesktopBuildPackageLocation="functions-app.zip" /p:DeployIisAppPath="Default Web Site"
 
   # Integration Test locally
   - ps: $funcDir = $(pwd).Path + '\src\func\bin\Release\Net47'
@@ -100,41 +114,29 @@ build_script:
       --reporter-options configFile=test/func/build-mocha-reporter-config.json
       test/func
 deploy_script:
-  # Deploy to Azure - Dev, or Prod on tag
-  - ps: Write-Host 'Branch --$env:APPVEYOR_REPO_BRANCH--'
-  - src\arm\deploy.bat
+  # Deploy to Azure
+  - git checkout .
+  - git checkout %BRANCH_NAME%
+  - git merge master
+  - git push origin %BRANCH_NAME%
   - ps: |
-      if ($env:APPVEYOR_REPO_BRANCH -eq $env:PROD_BRANCH_NAME) {
-        ./src/arm/Deploy-AzureResourceGroup.ps1 `
-          -ResourceGroupName $env:AZ_RG_PROD `
-          -ResourceGroupLocation $env:AZ_LOCATION `
-          -OtherParams @{ `
-            resourcePrefix = $env:AZ_RG_PROD; `
-            branch = $env:PROD_BRANCH_NAME; `
-            includeSourceControlDeployment = 'no'; `
-          } `
-          -UploadArtifacts `
-          -StorageAccountName $env:AZ_ARM_STORAGE_ACCOUNT_NAME;
-        ./src/arm/Update-VersionSetting.ps1 `
-          -ResourceGroupName $env:AZ_RG_PROD `
-          -AppServiceName $env:AZ_RG_PROD-APP `
-          -VersionNumber '$env:VERSION.$env:APPVEYOR_BUILD_NUMBER';
-      } elseif ($env:APPVEYOR_REPO_BRANCH -eq $env:DEV_BRANCH_NAME) {
-        ./src/arm/Deploy-AzureResourceGroup.ps1 `
-          -ResourceGroupName $env:AZ_RG_DEV `
-          -ResourceGroupLocation $env:AZ_LOCATION `
-          -OtherParams @{ `
-            resourcePrefix = $env:AZ_RG_DEV; `
-            branch = $env:DEV_BRANCH_NAME; `
-            includeSourceControlDeployment = 'no'; `
-          } `
-          -UploadArtifacts `
-          -StorageAccountName $env:AZ_ARM_STORAGE_ACCOUNT_NAME;
-        ./src/arm/Update-VersionSetting.ps1 `
-          -ResourceGroupName $env:AZ_RG_DEV `
-          -AppServiceName $env:AZ_RG_DEV-APP `
-          -VersionNumber '$env:VERSION.$env:APPVEYOR_BUILD_NUMBER';
-      }
+      ./src/arm/Deploy-AzureResourceGroup.ps1 `
+        -ResourceGroupName $env:AZ_RG `
+        -ResourceGroupLocation $env:AZ_LOCATION `
+        -OtherParams @{ `
+          resourcePrefix = $env:AZ_RG; `
+          branch = $env:BRANCH_NAME; `
+          includeSourceControlDeployment = 'no'; `
+        } `
+        -UploadArtifacts `
+        -StorageAccountName $env:AZ_ARM_STORAGE_ACCOUNT_NAME;
+  - ps: if (-not $env:LastAzureDeploySuccessful) { throw 'Deployment Failed' }
+  - ps: |
+      ./src/arm/Update-VersionSetting.ps1 `
+        -ResourceGroupName $env:AZ_RG `
+        -AppServiceName $env:AZ_RG-APP `
+        -VersionNumber '$env:VERSION.$env:APPVEYOR_BUILD_NUMBER';
+  
 on_finish:
   # Stop the functions job if it's running
   - ps: if ($funcJob -ne $null -and $funcJob.State -ne 'Stopped') { Stop-Job $funcJob }
