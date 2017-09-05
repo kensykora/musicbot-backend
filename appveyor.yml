@@ -114,11 +114,15 @@ build_script:
       --reporter-options configFile=test/func/build-mocha-reporter-config.json
       test/func
 deploy_script:
+  # Merge master into dev
+  - |
+    if "BRANCH_NAME" == "dev" (
+      git checkout .
+      git checkout %BRANCH_NAME%
+      git merge master
+      git push origin %BRANCH_NAME%
+    )
   # Deploy to Azure
-  - git checkout .
-  - git checkout %BRANCH_NAME%
-  - git merge master
-  - git push origin %BRANCH_NAME%
   - ps: |
       ./src/arm/Deploy-AzureResourceGroup.ps1 `
         -ResourceGroupName $env:AZ_RG `
