@@ -116,7 +116,7 @@ deploy_script:
         ./src/arm/Update-VersionSetting.ps1 `
           -ResourceGroupName $env:AZ_RG_PROD `
           -AppServiceName $env:AZ_RG_PROD-APP `
-          -VersionNumber $env:VERSION.$env:APPVEYOR_BUILD_NUMBER;
+          -VersionNumber '$env:VERSION.$env:APPVEYOR_BUILD_NUMBER';
       } elseif ($env:APPVEYOR_REPO_TAG -eq 'false') {
         ./src/arm/Deploy-AzureResourceGroup.ps1 `
           -ResourceGroupName $env:AZ_RG_DEV `
@@ -131,7 +131,7 @@ deploy_script:
         ./src/arm/Update-VersionSetting.ps1 `
           -ResourceGroupName $env:AZ_RG_DEV `
           -AppServiceName $env:AZ_RG_DEV-APP `
-          -VersionNumber $env:VERSION.$env:APPVEYOR_BUILD_NUMBER;
+          -VersionNumber '$env:VERSION.$env:APPVEYOR_BUILD_NUMBER';
       }
 on_finish:
   # Stop the functions job if it's running
