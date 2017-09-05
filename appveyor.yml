@@ -19,6 +19,7 @@ for:
     only:
       - master
   environment:
+    SKIP_INTEGRATION_TEST: 'false'
     AZ_RG: MUSIC-BOT-DEV
     BRANCH_NAME: master
 
@@ -26,6 +27,7 @@ for:
     only:
       - prod
   environment:
+    SKIP_INTEGRATION_TEST: 'true'
     AZ_RG: MUSIC-BOT-PROD
     BRANCH_NAME: prod
 
@@ -61,6 +63,8 @@ build_script:
   # Restore and build
   - nuget restore
   - msbuild MusicBot.Backend.sln /p:Configuration=Release /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" /p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:DesktopBuildPackageLocation="functions-app.zip" /p:DeployIisAppPath="Default Web Site"
+
+  - ps: if ($env:SKIP_INTEGRATION_TEST -eq 'true') { Exit-AppVeyorBuild }
 
   # Integration Test locally
   - ps: $funcDir = $(pwd).Path + '\src\func\bin\Release\Net47'
