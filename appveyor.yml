@@ -115,13 +115,10 @@ build_script:
       test/func
 deploy_script:
   # Merge master into dev
-  - |
-    if "%BRANCH_NAME%"=="dev" (
-      git checkout .
-      git checkout %BRANCH_NAME%
-      git merge master
-      git push origin %BRANCH_NAME%
-    )
+  - if "%BRANCH_NAME%"=="dev" git checkout .
+  - if "%BRANCH_NAME%"=="dev" git checkout dev
+  - if "%BRANCH_NAME%"=="dev" git merge master
+  - if "%BRANCH_NAME%"=="dev" git push origin dev
   # Deploy to Azure
   - ps: |
       ./src/arm/Deploy-AzureResourceGroup.ps1 `
