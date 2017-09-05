@@ -101,7 +101,7 @@ build_script:
       test/func
 deploy_script:
   # Deploy to Azure - Dev, or Prod on tag
-  - ps: Write-Host 'Branch: --$env:APPVEYOR_REPO_BRANCH--'
+  - ps: Write-Host 'Branch --$env:APPVEYOR_REPO_BRANCH--'
   - src\arm\deploy.bat
   - ps: |
       if ($env:APPVEYOR_REPO_BRANCH -eq $env:PROD_BRANCH_NAME) {
