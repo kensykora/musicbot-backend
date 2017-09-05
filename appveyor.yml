@@ -129,8 +129,8 @@ deploy_script:
           -UploadArtifacts `
           -StorageAccountName $env:AZ_ARM_STORAGE_ACCOUNT_NAME;
         ./src/arm/Update-VersionSetting.ps1 `
-          -ResourceGroupName $env:AZ_RG_PROD `
-          -AppServiceName $env:AZ_RG_PROD-APP `
+          -ResourceGroupName $env:AZ_RG_DEV `
+          -AppServiceName $env:AZ_RG_DEV-APP `
           -VersionNumber $env:VERSION$env:APPVEYOR_BUILD_NUMBER;
       }
 on_finish:
