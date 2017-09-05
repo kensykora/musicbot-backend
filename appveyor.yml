@@ -109,7 +109,7 @@ deploy_script:
           -OtherParams @{ `
             resourcePrefix = $env:AZ_RG_PROD; `
             branch = $env:PROD_BRANCH_NAME; `
-            includeSourceControlDeployment = 'no' `
+            includeSourceControlDeployment = 'no'; `
           } `
           -UploadArtifacts `
           -StorageAccountName $env:AZ_ARM_STORAGE_ACCOUNT_NAME;
@@ -124,7 +124,7 @@ deploy_script:
           -OtherParams @{ `
             resourcePrefix = $env:AZ_RG_DEV; `
             branch = $env:DEV_BRANCH_NAME; `
-            includeSourceControlDeployment = 'no' `
+            includeSourceControlDeployment = 'no'; `
           } `
           -UploadArtifacts `
           -StorageAccountName $env:AZ_ARM_STORAGE_ACCOUNT_NAME;
