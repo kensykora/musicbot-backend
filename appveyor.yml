@@ -116,7 +116,7 @@ build_script:
 deploy_script:
   # Merge master into dev
   - |
-    if "BRANCH_NAME" == "dev" (
+    if "%BRANCH_NAME%"=="dev" (
       git checkout .
       git checkout %BRANCH_NAME%
       git merge master
