@@ -69,7 +69,7 @@ build_script:
   - ps: Add-Content "$env:USERPROFILE\.git-credentials" "https://$($env:GIT_ACCESS_TOKEN):x-oauth-basic@github.com`n"
   - git checkout -b %AZ_RG_INT_PREFIX%%APPVEYOR_BUILD_NUMBER%
   - git push -u origin %AZ_RG_INT_PREFIX%%APPVEYOR_BUILD_NUMBER%
-  - ps: $PushedBranch = $true
+  - set PushedBranch=true
 
   # Deploy resources to Azure for integration testing
   - ps: $pass = ConvertTo-SecureString $env:AZ_AD_SP_PASS -AsPlainText -Force
@@ -100,25 +100,23 @@ build_script:
       test/func
 deploy_script:
   # Deploy to Azure - Dev, or Prod on tag
-  - ps: |
-      if ($env:APPVEYOR_REPO_TAG -eq 'true' -and $env:APPVEYOR_REPO_TAG_NAME -eq 'prod') { 
-        Write-Host "Deploying to Production"; 
-        ./src/arm/Deploy-Environment.ps1 `
-          -ResourceGroupName $env:AZ_RG_PROD `
-          -ResourceGroupLocation $env:AZ_LOCATION `
-          -ResourcePrefix $env:AZ_RG_PROD `
-          -Branch $env:PROD_BRANCH_NAME `
-          -Version "$env:VERSION.$env:APPVEYOR_BUILD_NUMBER" `
-          -StorageAccountName $env:AZ_ARM_STORAGE_ACCOUNT_NAME; 
-      } elseif ($env:APPVEYOR_REPO_TAG -eq 'false') { 
-        Write-Host "Deploying to Dev"; 
-        ./src/arm/Deploy-Environment.ps1 `
-          -ResourceGroupName $env:AZ_RG_DEV `
-          -ResourceGroupLocation $env:AZ_LOCATION `
-          -ResourcePrefix $env:AZ_RG_DEV `
-          -Branch $env:DEV_BRANCH_NAME `
-          -Version "$env:VERSION.$env:APPVEYOR_BUILD_NUMBER" `
-          -StorageAccountName $env:AZ_ARM_STORAGE_ACCOUNT_NAME; 
+  - >
+      if "%APPVEYOR_REPO_TAG%" == "true" if "%APPVEYOR_REPO_TAG_NAME%" == "prod" (  
+        echo "Deploying to Production";
+        powershell ./src/arm/Deploy-AzureResourceGroup.ps1 -ResourceGroupName "%AZ_RG_PROD%" -ResourceGroupLocation "%AZ_LOCATION%" -OtherParams @{ resourcePrefix = "%AZ_RG_PROD%"; branch = "%PROD_BRANCH_NAME%"; includeSourceControlDeployment = "no" } -UploadArtifacts -StorageAccountName "%AZ_ARM_STORAGE_ACCOUNT_NAME%"
+        git checkout .;
+        git checkout "%PROD_BRANCH_NAME%";
+        git merge master;
+        git push origin "%PROD_BRANCH_NAME%";
+        powershell ./src/arm/Update-VersionSetting.ps1 -ResourceGroupName "%AZ_RG_PROD%" -AppServiceName "%AZ_RG_PROD%-APP" -VersionNumber "%VERSION%%APPVEYOR_BUILD_NUMBER%"
+      ) else if "%APPVEYOR_REPO_TAG% == "false" ( 
+        echo "Deploying to Dev";
+        powershell ./src/arm/Deploy-AzureResourceGroup.ps1 -ResourceGroupName "%AZ_RG_DEV%" -ResourceGroupLocation "%AZ_LOCATION%" -OtherParams @{ resourcePrefix = "%AZ_RG_DEV%"; branch = "%DEV_BRANCH_NAME%"; includeSourceControlDeployment = "no" } -UploadArtifacts -StorageAccountName "%AZ_ARM_STORAGE_ACCOUNT_NAME%"
+        git checkout .;
+        git checkout "%DEV_BRANCH_NAME%";
+        git merge master;
+        git push origin "%DEV_BRANCH_NAME%";
+        powershell ./src/arm/Update-VersionSetting.ps1 -ResourceGroupName "%AZ_RG_DEV%" -AppServiceName "%AZ_RG_DEV%-APP" -VersionNumber "%VERSION%%APPVEYOR_BUILD_NUMBER%"
       } else { 
         Write-Host "Non-Prod tagged commit, skipping deployment." 
       }
@@ -130,4 +128,4 @@ on_finish:
   - ps: if ($DeployedIntegrationEnvironment) { Remove-AzureRmResourceGroup -Name $env:AZ_RG_INT_PREFIX$env:APPVEYOR_BUILD_NUMBER -Force }
 
   # Tear down pushed branch
-  - ps: if ($PushedBranch) { $ErrorActionPreference = "SilentlyContinue"; cmd /c git push origin --delete $env:AZ_RG_INT_PREFIX$env:APPVEYOR_BUILD_NUMBER 2>&1 }
+  - if "%PushedBranch%" == "true" (git push origin --delete %AZ_RG_INT_PREFIX%%APPVEYOR_BUILD_NUMBER%)
