@@ -29,6 +29,7 @@ dotnet_csproj:
 branches:
   only:
     - master
+    - prod
 notifications:
   - provider: Slack
     incoming_webhook:
