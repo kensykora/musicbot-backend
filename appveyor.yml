@@ -101,9 +101,10 @@ build_script:
       test/func
 deploy_script:
   # Deploy to Azure - Dev, or Prod on tag
+  - ps: Write-Host 'Branch: --$env:APPVEYOR_REPO_BRANCH--'
   - src\arm\deploy.bat
   - ps: |
-      if ($env:APPVEYOR_REPO_BRANCH -eq $env:PROD_BRANCH_NAME -and $env:APPVEYOR_PULL_REQUEST_NUMBER -eq $null) {
+      if ($env:APPVEYOR_REPO_BRANCH -eq $env:PROD_BRANCH_NAME) {
         ./src/arm/Deploy-AzureResourceGroup.ps1 `
           -ResourceGroupName $env:AZ_RG_PROD `
           -ResourceGroupLocation $env:AZ_LOCATION `
@@ -118,7 +119,7 @@ deploy_script:
           -ResourceGroupName $env:AZ_RG_PROD `
           -AppServiceName $env:AZ_RG_PROD-APP `
           -VersionNumber '$env:VERSION.$env:APPVEYOR_BUILD_NUMBER';
-      } elseif ($env:APPVEYOR_REPO_BRANCH -eq $env:DEV_BRANCH_NAME -and $env:APPVEYOR_PULL_REQUEST_NUMBER -eq $null) {
+      } elseif ($env:APPVEYOR_REPO_BRANCH -eq $env:DEV_BRANCH_NAME) {
         ./src/arm/Deploy-AzureResourceGroup.ps1 `
           -ResourceGroupName $env:AZ_RG_DEV `
           -ResourceGroupLocation $env:AZ_LOCATION `
