@@ -100,10 +100,39 @@ build_script:
   #    test/func
 deploy_script:
   # Deploy to Azure - Dev, or Prod on tag
-  - ps: $pass = ConvertTo-SecureString $env:AZ_AD_SP_PASS -AsPlainText -Force
-  - ps: $cred = New-Object -TypeName pscredential -ArgumentList $env:AZ_AD_SP_ID, $pass
-  - ps: Login-AzureRmAccount -Credential $cred -ServicePrincipal -TenantId $env:AZ_AD_TENANT
   - src\arm\deploy.bat
+  -ps: |
+     if (%env:APPVEYOR_REPO_TAG -eq 'true' -and $env:APPVEYOR_REPO_TAG_NAME == 'prod') {
+       ./src/arm/Deploy-AzureResourceGroup.ps1 `
+         -ResourceGroupName $env:AZ_RG_PROD `
+         -ResourceGroupLocation $env:AZ_LOCATION `
+         -OtherParams @{ `
+           resourcePrefix = $env:AZ_RG_PROD; `
+           branch = $env:PROD_BRANCH_NAME; `
+           includeSourceControlDeployment = 'no' `
+         } `
+         -UploadArtifacts `
+         -StorageAccountName $env:AZ_ARM_STORAGE_ACCOUNT_NAME;
+         ./src/arm/Update-VersionSetting.ps1 `
+           -ResourceGroupName $env:AZ_RG_PROD `
+           -AppServiceName $env:AZ_RG_PROD-APP `
+           -VersionNumber $env:VERSION$env:APPVEYOR_BUILD_NUMBER;
+     } else if ($env:APPVEYOR_REPO_TAG -eq 'false') {
+              ./src/arm/Deploy-AzureResourceGroup.ps1 `
+         -ResourceGroupName $env:AZ_RG_PROD `
+         -ResourceGroupLocation $env:AZ_LOCATION `
+         -OtherParams @{ `
+           resourcePrefix = $env:AZ_RG_PROD; `
+           branch = $env:PROD_BRANCH_NAME; `
+           includeSourceControlDeployment = 'no' `
+         } `
+         -UploadArtifacts `
+         -StorageAccountName $env:AZ_ARM_STORAGE_ACCOUNT_NAME;
+         ./src/arm/Update-VersionSetting.ps1 `
+           -ResourceGroupName $env:AZ_RG_PROD `
+           -AppServiceName $env:AZ_RG_PROD-APP `
+           -VersionNumber $env:VERSION$env:APPVEYOR_BUILD_NUMBER;
+     }
 on_finish:
   # Stop the functions job if it's running
   - ps: if ($funcJob -ne $null -and $funcJob.State -ne 'Stopped') { Stop-Job $funcJob }
