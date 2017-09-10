@@ -42,7 +42,7 @@ namespace MusicBot.App.Commands
             while (i >= 0)
             {
                 var test = code.Substring(i, CodeLength);
-                if (await _database.CountAsync(x => x.RegistrationCode == test) == 0)
+                if (await _database.CountAsync(x => x.RegistrationCode.Equals(test)) == 0)
                 {
                     return test;
                 }

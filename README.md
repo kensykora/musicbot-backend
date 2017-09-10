@@ -28,3 +28,7 @@ Dev and Prod are configured as github deployments to functions app. Thus, the li
 Deployments to dev simply need to be passing builds.
 
 Deployments to prod are triggered by tagging 'prod' and pushing to github.
+
+## TODO:
+
+ Replace DocumentDB Repository package with native calls

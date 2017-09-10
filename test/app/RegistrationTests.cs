@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
-
-using DocumentDB.Repository;
 
 using Microsoft.Azure.Documents.Client;
 
@@ -18,9 +15,14 @@ using Xunit;
 
 namespace MusicBot.App.Test
 {
-    public class RegistrationTests
+    public class RegistrationTests : IClassFixture<RegistrationTestsContext>
     {
-        private readonly RegistrationTestsContext _ctx = new RegistrationTestsContext();
+        private readonly RegistrationTestsContext _ctx;
+
+        public RegistrationTests(RegistrationTestsContext ctx)
+        {
+            _ctx = ctx;
+        }
 
         [Fact]
         public void Register_AcceptsRegistrationCode()
@@ -39,7 +41,7 @@ namespace MusicBot.App.Test
         public void RegisterDevice_AcceptsGuid()
         {
             // arrange
-            var deviceId = Guid.NewGuid();
+            var deviceId = _ctx.StandardDeviceId;
 
             // act
             var registerDeviceCommand = _ctx.GetStandardRegisterDeviceCommand(deviceId);
@@ -83,7 +85,7 @@ namespace MusicBot.App.Test
         public async Task RegisterDevice_ReturnsSameCode_ForSameDevices()
         {
             // arrange
-            var deviceId = Guid.NewGuid();
+            var deviceId = _ctx.StandardDeviceId;
             var registerDeviceCommand1 = _ctx.GetStandardRegisterDeviceCommand(deviceId);
             var registerDeviceCommand2 = _ctx.GetStandardRegisterDeviceCommand(deviceId);
 
@@ -119,12 +121,12 @@ namespace MusicBot.App.Test
             // arrange
             var i = 0;
             var database = _ctx.GetStandardMockDatabase<DeviceRegistration>();
-            database.Setup(x => x.CountAsync(It.IsAny<Expression<Func<DeviceRegistration, bool>>>())).Returns(() =>
+            database.Setup(x => x.FirstOrDefaultAsync(It.IsAny<Func<DeviceRegistration, bool>>())).Returns(() =>
             {
                 i++;
-                return Task.FromResult(i % 2);
+                return i % 2 == 1 ? Task.FromResult(_ctx.StandardDeviceRegistration) : Task.FromResult<DeviceRegistration>(null);
             });
-            var deviceId = new Guid("00000000-0000-0000-0000-000008d1d01e"); // Should collide on the first generation pass for "d1d01e", using "8d1d01" instead
+            var deviceId =new Guid("00000000-0000-0000-0000-000008d1d01e"); // Should collide on the first generation pass for "d1d01e", using "8d1d01" instead
             var registerDeviceCommand = _ctx.GetStandardRegisterDeviceCommand(deviceIdIs: deviceId, databaseIs: database.Object);
 
             // act
@@ -132,33 +134,6 @@ namespace MusicBot.App.Test
 
             // assert
             Assert.Equal("8d1d01", result.RegistrationCode);
-        }
-    }
-
-    public class RegistrationTestsContext
-    {
-        public Guid StandardDeviceId = new Guid("0aecbea0-79ee-46e9-b1cc-a08737d1d01e");
-
-        public RegisterDeviceCommand GetStandardRegisterDeviceCommand(Guid? deviceIdIs = null,
-            IDocumentDbRepository<DeviceRegistration> databaseIs = null,
-            bool useStandardValues = true)
-        {
-            if (useStandardValues && !deviceIdIs.HasValue)
-                deviceIdIs = StandardDeviceId;
-
-            if (useStandardValues && databaseIs == null)
-            {
-                databaseIs = GetStandardMockDatabase<DeviceRegistration>().Object;
-            }
-
-            Debug.Assert(deviceIdIs != null, nameof(deviceIdIs) + " != null");
-
-            return new RegisterDeviceCommand(deviceIdIs.Value, databaseIs);
-        }
-
-        public Mock<IDocumentDbRepository<TDataType>> GetStandardMockDatabase<TDataType>() where TDataType : class
-        {
-            return new Mock<IDocumentDbRepository<TDataType>>();
         }
     }
 }
