@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 
 using DocumentDB.Repository;
@@ -109,7 +110,28 @@ namespace MusicBot.App.Test
             var result = await registerDeviceCommand.ExecuteAsync();
 
             // assert
-            Assert.Equal("D1D01E", result.RegistrationCode, StringComparer.OrdinalIgnoreCase);
+            Assert.Equal("d1d01e", result.RegistrationCode);
+        }
+
+        [Fact]
+        public async Task RegisterDevice_UsesAlternateCode_OnCollision()
+        {
+            // arrange
+            var i = 0;
+            var database = _ctx.GetStandardMockDatabase<DeviceRegistration>();
+            database.Setup(x => x.CountAsync(It.IsAny<Expression<Func<DeviceRegistration, bool>>>())).Returns(() =>
+            {
+                i++;
+                return Task.FromResult(i % 2);
+            });
+            var deviceId = new Guid("00000000-0000-0000-0000-000008d1d01e"); // Should collide on the first generation pass for "d1d01e", using "8d1d01" instead
+            var registerDeviceCommand = _ctx.GetStandardRegisterDeviceCommand(deviceIdIs: deviceId, databaseIs: database.Object);
+
+            // act
+            var result = await registerDeviceCommand.ExecuteAsync();
+
+            // assert
+            Assert.Equal("8d1d01", result.RegistrationCode);
         }
     }
 
