@@ -12,13 +12,29 @@ namespace MusicBot.App.Test
     public class RegistrationTests
     {
         [Fact]
-        public void RegisterDevice_AcceptsRegistrationCode()
+        public void Register_AcceptsRegistrationCode()
         {
-            // arrange / act
-            var registrationCommand = new RegistrationCommand("ABC123");
+            // arrange
+            var command = "ABC123";
+
+            // act
+            var registerCommand = new RegistrationCommand(command);
 
             // assert
-            Assert.Equal("ABC123", registrationCommand.RegistrationCode);
+            Assert.Equal(command, registerCommand.RegistrationCode);
+        }
+
+        [Fact]
+        public void RegisterDevice_AcceptsGuid()
+        {
+            // arrange
+            var deviceId = Guid.NewGuid();
+
+            // act
+            var registerDeviceCommand = new RegisterDeviceCommand(deviceId);
+
+            // assert
+            Assert.Equal(deviceId, registerDeviceCommand.DeviceId);
         }
     }
 }
