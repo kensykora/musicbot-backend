@@ -11,6 +11,7 @@ namespace MusicBot.App.Commands
 {
     public class RegisterDeviceCommand : CommandBase<RegisterDeviceCommand.RegisterDeviceCommandResult>
     {
+        public const int CodeLength = 6;
         private readonly IDocumentDbRepository<DeviceRegistration> _database;
 
         public RegisterDeviceCommand(Guid deviceId, IDocumentDbRepository<DeviceRegistration> database)
@@ -23,8 +24,8 @@ namespace MusicBot.App.Commands
 
         public override async Task<RegisterDeviceCommandResult> ExecuteAsync()
         {
-            var code = "ABC123";
-            await _database.AddOrUpdateAsync(new DeviceRegistration()
+            var code = await GenerateCode(DeviceId);
+            await _database.AddOrUpdateAsync(new DeviceRegistration
             {
                 DeviceId = DeviceId,
                 RegistrationCode = code
@@ -33,12 +34,32 @@ namespace MusicBot.App.Commands
             return new RegisterDeviceCommandResult(code);
         }
 
+        private async Task<string> GenerateCode(Guid deviceId)
+        {
+            var code = deviceId.ToString().Replace("-","");
+            var i = code.Length - CodeLength;
+
+            while (i >= 0)
+            {
+                var test = code.Substring(i, CodeLength);
+                if (await _database.CountAsync(x => x.RegistrationCode == test) == 0)
+                {
+                    return test;
+                }
+
+                i--;
+            }
+
+            throw new ApplicationException("Unable to generate a unique code.");
+        }
+
         public class RegisterDeviceCommandResult
         {
             public RegisterDeviceCommandResult(string code)
             {
                 RegistrationCode = code;
             }
+
             public string RegistrationCode { get; set; }
         }
     }

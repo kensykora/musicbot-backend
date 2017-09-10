@@ -97,6 +97,20 @@ namespace MusicBot.App.Test
             Assert.NotEmpty(result1.RegistrationCode);
             Assert.Equal(result1.RegistrationCode, result2.RegistrationCode);
         }
+
+        [Fact]
+        public async Task RegisterDevice_GeneratesProperCode()
+        {
+            // arrange
+            var deviceId = new Guid("0aecbea0-79ee-46e9-b1cc-a08737d1d01e");
+            var registerDeviceCommand = _ctx.GetStandardRegisterDeviceCommand(deviceId);
+
+            // act
+            var result = await registerDeviceCommand.ExecuteAsync();
+
+            // assert
+            Assert.Equal("D1D01E", result.RegistrationCode, StringComparer.OrdinalIgnoreCase);
+        }
     }
 
     public class RegistrationTestsContext
