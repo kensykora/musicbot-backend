@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace MusicBot.App
+namespace MusicBot.App.Commands
 {
     public class RegistrationCommand : CommandBase<VoidCommandResult>
     {
@@ -14,9 +14,9 @@ namespace MusicBot.App
 
         public string RegistrationCode { get; }
 
-        public override async Task<VoidCommandResult> ExecuteAsync()
+        public override Task<VoidCommandResult> ExecuteAsync()
         {
-            return new VoidCommandResult();
+            return Task.FromResult(new VoidCommandResult());
         }
     }
 }
