@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-using DocumentDB.Repository;
-
 using MusicBot.App.Data;
 
 namespace MusicBot.App.Commands
@@ -24,8 +22,14 @@ namespace MusicBot.App.Commands
 
         public override async Task<RegisterDeviceCommandResult> ExecuteAsync()
         {
+            var existing = await _database.FirstOrDefault(x => x.DeviceId == DeviceId);
+            if (existing != null)
+            {
+                return new RegisterDeviceCommandResult(existing.RegistrationCode);
+            }
+
             var code = await GenerateCode(DeviceId);
-            await _database.AddOrUpdateAsync(new DeviceRegistration
+            await _database.CreateItemAsync(new DeviceRegistration
             {
                 DeviceId = DeviceId,
                 RegistrationCode = code
@@ -42,7 +46,7 @@ namespace MusicBot.App.Commands
             while (i >= 0)
             {
                 var test = code.Substring(i, CodeLength);
-                if (await _database.CountAsync(x => x.RegistrationCode.Equals(test)) == 0)
+                if (!await _database.AnyAsync(x => x.RegistrationCode.Equals(test)))
                 {
                     return test;
                 }

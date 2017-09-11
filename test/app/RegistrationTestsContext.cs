@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Linq.Expressions;
+using System.Threading.Tasks;
 
-using DocumentDB.Repository;
+using Castle.DynamicProxy.Generators.Emitters.SimpleAST;
 
 using Moq;
 
@@ -19,7 +21,7 @@ namespace MusicBot.App.Test
 
         public RegistrationTestsIntegrationContext()
         {
-            ConnectionFactory.Instance.DeviceRegistration.RemoveAsync();
+            ConnectionFactory.Instance.DeviceRegistration.ClearAllAsync().Wait();
         }
 
         public override RegisterDeviceCommand GetStandardRegisterDeviceCommand(Guid? deviceIdIs = null,
@@ -62,7 +64,11 @@ namespace MusicBot.App.Test
 
         public Mock<IDocumentDbRepository<TDataType>> GetStandardMockDatabase<TDataType>() where TDataType : class
         {
-            return new Mock<IDocumentDbRepository<TDataType>>();
+            var result = new Mock<IDocumentDbRepository<TDataType>>();
+
+            result.Setup(x => x.AnyAsync(It.IsAny<Expression<Func<TDataType, bool>>>())).Returns(Task.FromResult(false));
+
+            return result;
         }
     }
 }

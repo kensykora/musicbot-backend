@@ -4,8 +4,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 
-using Microsoft.Azure.Documents.Client;
-
 using Moq;
 
 using MusicBot.App.Commands;
@@ -17,12 +15,12 @@ namespace MusicBot.App.Test
 {
     public class RegistrationTests : IClassFixture<RegistrationTestsContext>
     {
-        private readonly RegistrationTestsContext _ctx;
-
         public RegistrationTests(RegistrationTestsContext ctx)
         {
             _ctx = ctx;
         }
+
+        private readonly RegistrationTestsContext _ctx;
 
         [Fact]
         public void Register_AcceptsRegistrationCode()
@@ -51,6 +49,20 @@ namespace MusicBot.App.Test
         }
 
         [Fact]
+        public async Task RegisterDevice_GeneratesProperCode()
+        {
+            // arrange
+            var deviceId = new Guid("0aecbea0-79ee-46e9-b1cc-a08737d1d01e");
+            var registerDeviceCommand = _ctx.GetStandardRegisterDeviceCommand(deviceId);
+
+            // act
+            var result = await registerDeviceCommand.ExecuteAsync();
+
+            // assert
+            Assert.Equal("d1d01e", result.RegistrationCode);
+        }
+
+        [Fact]
         public async Task RegisterDevice_PersistsGuidToStorage()
         {
             // arrange
@@ -61,8 +73,8 @@ namespace MusicBot.App.Test
             await registerDeviceCommand.ExecuteAsync();
 
             // assert
-            database.Verify(x => x.AddOrUpdateAsync(It.Is<DeviceRegistration>(r => r.DeviceId == _ctx.StandardDeviceId),
-                It.IsAny<RequestOptions>()));
+            database.Verify(x =>
+                x.CreateItemAsync(It.Is<DeviceRegistration>(r => r.DeviceId == _ctx.StandardDeviceId)));
         }
 
         [Fact]
@@ -102,38 +114,42 @@ namespace MusicBot.App.Test
         }
 
         [Fact]
-        public async Task RegisterDevice_GeneratesProperCode()
-        {
-            // arrange
-            var deviceId = new Guid("0aecbea0-79ee-46e9-b1cc-a08737d1d01e");
-            var registerDeviceCommand = _ctx.GetStandardRegisterDeviceCommand(deviceId);
-
-            // act
-            var result = await registerDeviceCommand.ExecuteAsync();
-
-            // assert
-            Assert.Equal("d1d01e", result.RegistrationCode);
-        }
-
-        [Fact]
         public async Task RegisterDevice_UsesAlternateCode_OnCollision()
         {
             // arrange
             var i = 0;
             var database = _ctx.GetStandardMockDatabase<DeviceRegistration>();
-            database.Setup(x => x.FirstOrDefaultAsync(It.IsAny<Func<DeviceRegistration, bool>>())).Returns(() =>
+            database.Setup(x => x.AnyAsync(It.IsAny<Expression<Func<DeviceRegistration, bool>>>())).Returns(() =>
             {
                 i++;
-                return i % 2 == 1 ? Task.FromResult(_ctx.StandardDeviceRegistration) : Task.FromResult<DeviceRegistration>(null);
+                return Task.FromResult(i == 1);
             });
-            var deviceId =new Guid("00000000-0000-0000-0000-000008d1d01e"); // Should collide on the first generation pass for "d1d01e", using "8d1d01" instead
-            var registerDeviceCommand = _ctx.GetStandardRegisterDeviceCommand(deviceIdIs: deviceId, databaseIs: database.Object);
+            var deviceId =
+                new Guid(
+                    "00000000-0000-0000-0000-000008d1d01e"); // Should collide on the first generation pass for "d1d01e", using "8d1d01" instead
+            var registerDeviceCommand = _ctx.GetStandardRegisterDeviceCommand(deviceId, database.Object);
 
             // act
             var result = await registerDeviceCommand.ExecuteAsync();
 
             // assert
             Assert.Equal("8d1d01", result.RegistrationCode);
+        }
+
+        [Fact]
+        public async Task RegisterDevice_UsesExisstingResponse_ForSameDeviceId()
+        {
+            // arrange
+            var database = _ctx.GetStandardMockDatabase<DeviceRegistration>();
+            database.Setup(x => x.FirstOrDefault(It.IsAny<Expression<Func<DeviceRegistration, bool>>>())).Returns(() =>
+                Task.FromResult(_ctx.StandardDeviceRegistration));
+            var registerDeviceCommand = _ctx.GetStandardRegisterDeviceCommand(_ctx.StandardDeviceRegistration.DeviceId, database.Object);
+
+            // act
+            var result = await registerDeviceCommand.ExecuteAsync();
+
+            // assert
+            Assert.Equal(_ctx.StandardDeviceRegistration.RegistrationCode, result.RegistrationCode);
         }
     }
 }
