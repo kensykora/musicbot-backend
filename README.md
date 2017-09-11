@@ -31,4 +31,4 @@ Deployments to prod are triggered by tagging 'prod' and pushing to github.
 
 ## TODO:
 
- Replace DocumentDB Repository package with native calls
+Setup local db testing on appveyor
