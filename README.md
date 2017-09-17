@@ -16,7 +16,7 @@
 
 1. Invite your bot to the server: `https://api.slack.com/apps/<your app id>/install-on-team`
 1. Start your functions host (Open Visual Studio solution, build and run)
-1. Start your reverse proxy (download and install <https://ngrok.com/> client)
+1. Start your reverse proxy `ngrok http 7071 --host-header=rewrite` (download and install <https://ngrok.com/> client)
 1. Update your slash command above with the base URL from ngrok.
 1. Update your `src/func/local.settings.json` file with your App's Verification Token (retrieve from <https://api.slack.com/apps/<YOUR APP ID>/general> 
 1. Start invoking commands.
