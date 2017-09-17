@@ -53,7 +53,7 @@ notifications:
     on_build_success: false
 artifacts:
   - path: install.log
-  - name: Cosmos DB Install Log
+    name: Cosmos DB Install Log
 install:
   - npm install -g mocha
   - npm install -g mocha-multi-reporters
