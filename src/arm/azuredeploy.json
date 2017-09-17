@@ -52,7 +52,8 @@
     "deploymentSourceLink": "[concat(parameters('_artifactsLocation'),'/_app-sourcecontrols-', parameters('includeSourceControlDeployment'), '.json', parameters('_artifactsLocationSasToken'))]",
     "appServiceName": "[concat(parameters('resourcePrefix'), '-APP')]",
     "storageName": "[replace(toLower(concat(parameters('resourcePrefix'), '-STG')),'-','')]",
-    "insightsName": "[concat(parameters('resourcePrefix'), '-INS')]"
+    "insightsName": "[concat(parameters('resourcePrefix'), '-INS')]",
+    "databaseName": "[toLower(concat(parameters('resourcePrefix'),'-DB'))]"
   },
   "resources": [{
       "apiVersion": "2016-07-01",
@@ -81,11 +82,35 @@
       ]
     },
     {
+      "name": "[variables('databaseName')]",
+      "type": "Microsoft.DocumentDB/databaseAccounts",
+      "apiVersion": "2015-04-08",
+      "location": "[resourceGroup().location]",
+      "kind": "GlobalDocumentDB",
+      "properties": {
+        "consistencyPolicy": {
+          "defaultConsistencyLevel": "Session"
+        },
+        "locations": [{
+            "locationName": "eastus",
+            "failoverPriority": "0"
+          },
+          {
+            "locationName": "westus",
+            "failoverPriority": "1"
+          }
+        ],
+        "databaseAccountOfferType": "Standard",
+        "enableAutomaticFailover": true
+      }
+    },
+    {
       "name": "[variables('appServiceName')]",
       "type": "Microsoft.Web/sites",
       "dependsOn": [
         "[resourceId('Microsoft.Storage/storageAccounts', variables('storageName'))]",
-        "[resourceId('microsoft.insights/components/', variables('insightsName'))]"
+        "[resourceId('microsoft.insights/components/', variables('insightsName'))]",
+        "[variables('databaseName')]"
       ],
       "properties": {
         "siteConfig": {
@@ -116,6 +141,18 @@
             {
               "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
               "value": "[reference(resourceId('microsoft.insights/components/', variables('insightsName')), '2015-05-01').InstrumentationKey]"
+            },
+            {
+              "name": "DocumentDbKey",
+              "value": "[listKeys(resourceId('Microsoft.DocumentDB/databaseAccounts', variables('databaseName')), '2015-04-08').primaryMasterKey]"
+            },
+            {
+              "name": "DocumentDbServer",
+              "value": "[reference(variables('databaseName')).documentEndpoint]"
+            },
+            {
+              "name": "DocumentDbDatabaseId",
+              "value": "[variables('databaseName')]"
             }
           ]
         },
