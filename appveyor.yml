@@ -51,6 +51,9 @@ notifications:
     on_build_failure: true
     on_build_status_changed: true
     on_build_success: false
+artifacts:
+  - path: install.log
+  - name: Cosmos DB Install Log
 install:
   - npm install -g mocha
   - npm install -g mocha-multi-reporters
@@ -58,7 +61,7 @@ install:
   - npm install -g azure-functions-core-tools
   - npm install
   - ps: (new-object net.webclient).DownloadFile('https://aka.ms/cosmosdb-emulator', 'cosmos-db.msi')
-  - ps: msiexec /i cosmos-db.msi /quiet /qn /norestart /log install.log
+  - start /wait msiexec /i cosmos-db.msi /qn /quiet /norestart /log install.log
   - "\"C:\\Program Files\\Azure Cosmos DB Emulator\\CosmosDB.Emulator.exe\""
 build_script: 
   # Restore and build
