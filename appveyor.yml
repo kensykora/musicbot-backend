@@ -59,7 +59,7 @@ install:
   - npm install
   - ps: (new-object net.webclient).DownloadFile('https://aka.ms/cosmosdb-emulator', 'cosmos-db.msi')
   - ps: msiexec /i cosmos-db.msi /quiet /qn /norestart /log install.log
-  - "C:\\Program Files\\Azure Cosmos DB Emulator\\CosmosDB.Emulator.exe"
+  - "\"C:\\Program Files\\Azure Cosmos DB Emulator\\CosmosDB.Emulator.exe\""
 build_script: 
   # Restore and build
   - nuget restore
