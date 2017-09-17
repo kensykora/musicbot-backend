@@ -61,7 +61,8 @@ install:
   - npm install -g azure-functions-core-tools
   - npm install
   - ps: (new-object net.webclient).DownloadFile('https://aka.ms/cosmosdb-emulator', 'cosmos-db.msi')
-  - start /wait msiexec /i cosmos-db.msi /qn /quiet /norestart /log install.log
+  - msiexec /i cosmos-db.msi /qn /quiet /norestart /log install.log
+  - ps: Start-Sleep 60
   - "\"C:\\Program Files\\Azure Cosmos DB Emulator\\CosmosDB.Emulator.exe\""
 build_script: 
   # Restore and build
