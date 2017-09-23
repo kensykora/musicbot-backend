@@ -77,21 +77,13 @@ build_script:
   - nuget restore
   - msbuild MusicBot.Backend.sln /p:Configuration=Release /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" /p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:DesktopBuildPackageLocation="functions-app.zip" /p:DeployIisAppPath="Default Web Site"
 
-  # Integration Test locally
-  - ps: .\test\func\Start-CosmosDb.ps1
-  - ps: $funcDir = $(pwd).Path + '\src\func\bin\Release\Net47'
-  - ps: $funcJob = Start-Job -FilePath .\test\func\Start-FuncHost.ps1 -ArgumentList $funcDir
-  - ps: Start-Sleep -s 15 # give it some startup time
-  - ps: Invoke-WebRequest -URI http://localhost:7071/api/version -TimeoutSec 60 # Prime it
-  - SET TEST_TYPE=local
-  - >
-      mocha --slow %MOCHA_SLOW_THRESHOLD_MS% 
-      --timeout %MOCHA_TIMEOUT_THRESHOLD_MS%
-      --reporter mocha-multi-reporters
-      --reporter-options configFile=test/func/build-mocha-reporter-config.json
-      test/func
+test_script:
+  # Unit Tests
+  - ps: .\packages\xunit.runner.console.2.2.0\tools\xunit.console.exe -notrait "Category=Integration"
 
-  - ps: Stop-Job $funcJob 
+  # Database Integration Tests
+  - ps: .\test\func\Start-CosmosDb.ps1
+  - ps: .\packages\xunit.runner.console.2.2.0\tools\xunit.console.exe -trait "IntegrationType=Database"
 
   # If this is a PR, we're done
   - ps: if ($env:APPVEYOR_PULL_REQUEST_NUMBER -ne $null) { Exit-AppVeyorBuild }
@@ -122,6 +114,25 @@ build_script:
         -UploadArtifacts `
         -StorageAccountName $env:AZ_ARM_STORAGE_ACCOUNT_NAME
   - ps: if (-not $env:LastAzureDeploySuccessful) { throw "Azure Script did not complete successfully" }
+
+  # IoT Hub Integration Tests
+  - ps: .\test\func\Start-CosmosDb.ps1
+  - ps: .\packages\xunit.runner.console.2.2.0\tools\xunit.console.exe -trait "IntegrationType=IoTHub"
+
+  # API Integration Test locally
+  - ps: $funcDir = $(pwd).Path + '\src\func\bin\Release\Net47'
+  - ps: $funcJob = Start-Job -FilePath .\test\func\Start-FuncHost.ps1 -ArgumentList $funcDir
+  - ps: Start-Sleep -s 15 # give it some startup time
+  - ps: Invoke-WebRequest -URI http://localhost:7071/api/version -TimeoutSec 60 # Prime it
+  - SET TEST_TYPE=local
+  - >
+      mocha --slow %MOCHA_SLOW_THRESHOLD_MS% 
+      --timeout %MOCHA_TIMEOUT_THRESHOLD_MS%
+      --reporter mocha-multi-reporters
+      --reporter-options configFile=test/func/build-mocha-reporter-config.json
+      test/func
+
+  - ps: Stop-Job $funcJob 
 
   # Test on Azure
   - set BASE_URL=https://%AZ_RG_INT_PREFIX%%APPVEYOR_BUILD_NUMBER%-APP.azurewebsites.net/api

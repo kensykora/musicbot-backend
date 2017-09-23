@@ -10,6 +10,7 @@ using Xunit;
 namespace MusicBot.App.Test.Integration
 {
     [Trait("Category", "Integration")]
+    [Trait("IntegrationType", "IoTHub")]
     public class RegistrationIoTHubIntegrationTests : IClassFixture<RegistrationTestsIoTHubIntegrationContext>
     {
         public RegistrationIoTHubIntegrationTests(RegistrationTestsIoTHubIntegrationContext ctx)
