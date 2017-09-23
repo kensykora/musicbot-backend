@@ -53,6 +53,18 @@
       "metadata": {
         "description": "Resource name of the IoT hub to use"
       }
+    },
+    "betaKey": {
+      "type": "securestring",
+      "metadata" : {
+        "description": "Beta key for validating registration calls for the time being"
+      }
+    },
+    "slackVerificationToken": {
+      "type": "securestring",
+      "metadata": {
+        "description": "Slack verification token for authenticating slack calls"
+      }
     }
   },
   "variables": {
@@ -61,7 +73,7 @@
     "storageName": "[replace(toLower(concat(parameters('resourcePrefix'), '-STG')),'-','')]",
     "insightsName": "[concat(parameters('resourcePrefix'), '-INS')]",
     "databaseName": "[toLower(concat(parameters('resourcePrefix'),'-DB'))]",
-    "iotHubName": "[concat(parameters('resourcePrefix'),'-IOT')]",
+    "iotHubName":       "[if(empty(parameters('iotHubResourceId')), concat(parameters('resourcePrefix'),'-IOT'),                      substring(parameters('iotHubResourceId'), add(lastIndexOf(parameters('iotHubResourceId'), '/'), 1)))]",
     "iotHubResourceId": "[if(empty(parameters('iotHubResourceId')), resourceId('Microsoft.Devices/IotHubs', variables('iotHubName')), parameters('iotHubResourceId'))]"
   },
   "resources": [{
@@ -191,6 +203,18 @@
             {
               "name": "DocumentDbDatabaseId",
               "value": "[variables('databaseName')]"
+            },
+            {
+              "name": "IoTHubConnectionString",
+              "value": "[concat('HostName=', variables('iotHubName'),'.azure-devices.net;SharedAccessKeyName=iothubowner;SharedAccessKey=', listkeys(concat(variables('iotHubResourceId'),'/iothubkeys/iothubowner'), '2017-01-19').primaryKey)]"
+            },
+            {
+              "name": "BetaKey",
+              "value": "[parameters('betaKey')]"
+            },
+            {
+              "name": "SlackVerificationToken",
+              "value": "[parameters('slackVerificationToken')]"
             }
           ]
         },
