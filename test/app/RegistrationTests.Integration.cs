@@ -1,19 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Threading.Tasks;
-
-using Moq;
-
-using MusicBot.App.Data;
 
 using Xunit;
 
 namespace MusicBot.App.Test
 {
     [Trait("Category", "Integration")]
-    public class RegistrationIntegrationTests: IClassFixture<RegistrationTestsIntegrationContext>
+    public class RegistrationIntegrationTests : IClassFixture<RegistrationTestsIntegrationContext>
     {
         private readonly RegistrationTestsIntegrationContext _ctx;
 
@@ -28,14 +23,13 @@ namespace MusicBot.App.Test
         public async Task RegisterDevices_GeneratesSameCodes_ForSameDevices(string deviceId, string expectedCode)
         {
             // arrange
-            var registerDeviceCommand = _ctx.GetStandardRegisterDeviceCommand(deviceIdIs: new Guid(deviceId));
+            var registerDeviceCommand = _ctx.GetStandardRegisterDeviceCommand(new Guid(deviceId));
 
             // act
             var result = await registerDeviceCommand.ExecuteAsync();
 
             // assert
             Assert.Equal(expectedCode, result.RegistrationCode);
-
         }
 
         [Theory]
@@ -52,13 +46,13 @@ namespace MusicBot.App.Test
         public async Task RegisterDevices_GeneratesPredictableCodes_ForDifferentDevices(string deviceId)
         {
             // arrange
-            var registerDeviceCommand = _ctx.GetStandardRegisterDeviceCommand(deviceIdIs: new Guid(deviceId));
+            var registerDeviceCommand = _ctx.GetStandardRegisterDeviceCommand(new Guid(deviceId));
 
             // act
             var result = await registerDeviceCommand.ExecuteAsync();
 
             // assert
-            Assert.Equal(deviceId.Substring(deviceId.Length-6, 6), result.RegistrationCode);
+            Assert.Equal(deviceId.Substring(deviceId.Length - 6, 6), result.RegistrationCode);
         }
     }
 }

@@ -143,7 +143,8 @@ namespace MusicBot.App.Test
             var database = _ctx.GetStandardMockDatabase<DeviceRegistration>();
             database.Setup(x => x.FirstOrDefault(It.IsAny<Expression<Func<DeviceRegistration, bool>>>())).Returns(() =>
                 Task.FromResult(_ctx.StandardDeviceRegistration));
-            var registerDeviceCommand = _ctx.GetStandardRegisterDeviceCommand(_ctx.StandardDeviceRegistration.DeviceId, database.Object);
+            var registerDeviceCommand =
+                _ctx.GetStandardRegisterDeviceCommand(_ctx.StandardDeviceRegistration.DeviceId, database.Object);
 
             // act
             var result = await registerDeviceCommand.ExecuteAsync();
