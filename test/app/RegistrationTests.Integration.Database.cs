@@ -8,11 +8,11 @@ using Xunit;
 namespace MusicBot.App.Test
 {
     [Trait("Category", "Integration")]
-    public class RegistrationIntegrationTests : IClassFixture<RegistrationTestsIntegrationContext>
+    public class RegistrationDatabaseIntegrationTests : IClassFixture<RegistrationTestsIntegrationContext>
     {
         private readonly RegistrationTestsIntegrationContext _ctx;
 
-        public RegistrationIntegrationTests(RegistrationTestsIntegrationContext ctx)
+        public RegistrationDatabaseIntegrationTests(RegistrationTestsIntegrationContext ctx)
         {
             _ctx = ctx;
         }

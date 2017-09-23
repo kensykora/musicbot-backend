@@ -152,5 +152,19 @@ namespace MusicBot.App.Test
             // assert
             Assert.Equal(_ctx.StandardDeviceRegistration.RegistrationCode, result.RegistrationCode);
         }
+
+        [Fact]
+        public async Task RegisterDevice_RegistersWithIoTHub()
+        {
+            // arrange
+            var deviceHub = _ctx.GetStandardMockDeviceHub();
+            var registerDeviceCommand = _ctx.GetStandardRegisterDeviceCommand(deviceHubIs: deviceHub.Object);
+
+            // act
+            var result = await registerDeviceCommand.ExecuteAsync();
+
+            // assert
+            deviceHub.Verify(x => x.RegisterDeviceAsync(It.Is<Guid>(y => y.Equals(_ctx.StandardDeviceId))));
+        }
     }
 }

@@ -91,7 +91,7 @@
   <ItemGroup>
     <Compile Include="RegistrationTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RegistrationTests.Integration.cs" />
+    <Compile Include="RegistrationTests.Integration.Database.cs" />
     <Compile Include="RegistrationTestsContext.cs" />
   </ItemGroup>
   <ItemGroup>

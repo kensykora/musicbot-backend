@@ -65,9 +65,11 @@
     <Compile Include="Commands\CommandBase.cs" />
     <Compile Include="Config.cs" />
     <Compile Include="Commands\ICommand.cs" />
-    <Compile Include="Data\ConnectionFactory.cs" />
+    <Compile Include="ConnectionFactory.cs" />
     <Compile Include="Data\DeviceRegistration.cs" />
     <Compile Include="Data\DocumentDbRepository.cs" />
+    <Compile Include="Devices\IDeviceHub.cs" />
+    <Compile Include="Devices\IoTHub.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Commands\RegisterDeviceCommand.cs" />
     <Compile Include="Commands\RegistrationCommand.cs" />

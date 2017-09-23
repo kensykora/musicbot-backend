@@ -9,8 +9,8 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Azure.WebJobs.Host;
 
+using MusicBot.App;
 using MusicBot.App.Commands;
-using MusicBot.App.Data;
 using MusicBot.Functions.Models;
 
 using Newtonsoft.Json;
@@ -39,7 +39,7 @@ namespace MusicBot.Functions
             log.Info($"Put Device - {registration.DeviceId.Value}");
 
             var command =
-                new RegisterDeviceCommand(registration.DeviceId.Value, ConnectionFactory.Instance.DeviceRegistration);
+                new RegisterDeviceCommand(registration.DeviceId.Value, ConnectionFactory.Instance.DeviceRegistration, ConnectionFactory.Instance.IoTHubClient);
             var result = await command.ExecuteAsync();
 
             return req.CreateResponse(HttpStatusCode.OK, new DeviceRegistrationResponse

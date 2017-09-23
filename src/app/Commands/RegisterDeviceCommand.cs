@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 
 using MusicBot.App.Data;
+using MusicBot.App.Devices;
 
 namespace MusicBot.App.Commands
 {
@@ -11,10 +12,12 @@ namespace MusicBot.App.Commands
     {
         public const int CodeLength = 6;
         private readonly IDocumentDbRepository<DeviceRegistration> _database;
+        private readonly IDeviceHub _deviceHub;
 
-        public RegisterDeviceCommand(Guid deviceId, IDocumentDbRepository<DeviceRegistration> database)
+        public RegisterDeviceCommand(Guid deviceId, IDocumentDbRepository<DeviceRegistration> database, IDeviceHub deviceHub)
         {
             _database = database;
+            _deviceHub = deviceHub;
             DeviceId = deviceId;
         }
 
@@ -34,6 +37,8 @@ namespace MusicBot.App.Commands
                 DeviceId = DeviceId,
                 RegistrationCode = code
             });
+
+            await _deviceHub.RegisterDeviceAsync(DeviceId);
 
             return new RegisterDeviceCommandResult(code);
         }

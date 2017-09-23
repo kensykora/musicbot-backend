@@ -7,23 +7,31 @@ using Microsoft.Azure.Documents;
 using Microsoft.Azure.Documents.Client;
 using Microsoft.Azure.Documents.Client.TransientFaultHandling;
 
+using MusicBot.App.Data;
+using MusicBot.App.Devices;
+
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
-namespace MusicBot.App.Data
+namespace MusicBot.App
 {
     public class ConnectionFactory
     {
         private static ConnectionFactory _instance;
-        public DocumentClient Client { get; }
+
+        public DocumentClient DatabaseClient { get; }
+        public IoTHub IoTHubClient { get; }
+
 
         private ConnectionFactory()
         {
-            Client = new DocumentClient(new Uri(Config.Instance.DocumentDbServer), Config.Instance.DocumentDbKey);
+            IoTHubClient = new IoTHub();
+
+            DatabaseClient = new DocumentClient(new Uri(Config.Instance.DocumentDbServer), Config.Instance.DocumentDbKey);
 
             CreateDatabaseIfNotExistsAsync().Wait();
 
-            DeviceRegistration = new DocumentDbRepository<DeviceRegistration>(Client, Config.Instance.DocumentDbDatabaseId, typeof(DeviceRegistration).Name);
+            DeviceRegistration = new DocumentDbRepository<DeviceRegistration>(DatabaseClient, Config.Instance.DocumentDbDatabaseId, typeof(DeviceRegistration).Name);
         }
 
         public DocumentDbRepository<DeviceRegistration> DeviceRegistration { get; }
@@ -32,13 +40,13 @@ namespace MusicBot.App.Data
         {
             try
             {
-                await Client.ReadDatabaseAsync(UriFactory.CreateDatabaseUri(Config.Instance.DocumentDbDatabaseId));
+                await DatabaseClient.ReadDatabaseAsync(UriFactory.CreateDatabaseUri(Config.Instance.DocumentDbDatabaseId));
             }
             catch (DocumentClientException e)
             {
                 if (e.StatusCode == System.Net.HttpStatusCode.NotFound)
                 {
-                    await Client.CreateDatabaseAsync(new Database { Id = Config.Instance.DocumentDbDatabaseId });
+                    await DatabaseClient.CreateDatabaseAsync(new Database { Id = Config.Instance.DocumentDbDatabaseId });
                 }
                 else
                 {
