@@ -26,6 +26,7 @@ describe(testType + " - Creating a Device", function() {
     var deviceCAll;
     var id = uuid();
     var code = id.substring(30);
+    this.slow(500);
 
     before("Create Device", function() {
         deviceCall = chakram.put(pathTo('/device'), { "DeviceId": id });
