@@ -311,7 +311,6 @@ project.lock.json
 /data
 .secrets
 appsettings.json
-local.settings.json
 TODO
 test-results.xml
 test-results.*.xml
