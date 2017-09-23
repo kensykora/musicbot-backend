@@ -17,6 +17,7 @@ namespace MusicBot.App
         public string DocumentDbDatabaseId => GetValue();
         public string IoTHubConnectionString => GetValue();
         public string BetaKey => GetValue();
+        public string SlackVerificationToken => GetValue();
 
         private string GetValue([CallerMemberName]string key = "")
         {

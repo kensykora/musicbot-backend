@@ -4,6 +4,7 @@ expect = chakram.expect;
 
 var baseUrl = process.env.BASE_URL == null ? "http://localhost:7071/api" : process.env.BASE_URL;
 var testType = process.env.TEST_TYPE == null ? "local" : process.env.TEST_TYPE
+var slackVerificationToken = process.env.SlackVerificationToken
 
 function pathTo(path) {
     return baseUrl + path;
@@ -80,4 +81,21 @@ describe(testType + " - Creating a Device - Errors", function() {
         deviceCall = chakram.put(pathTo('/device'), { "DeviceId": "ABC123" }, { "headers": goodHeaders });
         return expect(deviceCall).to.have.status(400);
     });
-})
+});
+
+describe(testType + " - Activate Device", function() {
+    it("should only be called from slack", function() {
+        var call = chakram.post(pathTo('/device/activate'), null, { form : { 'token': slackVerificationToken }});
+        return expect(call).to.have.status(200);
+    });
+
+    it("should 401 if token is incorrect", function() {
+        var call = chakram.post(pathTo('/device/activate'), null, { form : { 'token': 'ABC123' }});
+        return expect(call).to.have.status(401);
+    });
+
+    it("should 401 if token is missing", function() {
+        var call = chakram.post(pathTo('/device/activate'), null, { form : {  }});
+        return expect(call).to.have.status(401);
+    });
+});

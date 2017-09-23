@@ -21,6 +21,16 @@
 1. Update your `src/func/local.settings.json` file with your App's Verification Token (retrieve from <https://api.slack.com/apps/<YOUR APP ID>/general> 
 1. Start invoking commands.
 
+## Environment Variables
+
+Setup these environment variables:
+
+| Name                     | Description                                            | Example                                                                                                     |
+| ------------------------ | ------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------- |
+| `IoTHubConnectionString` | Connection string for iothubowner credential           | `HostName=ksykora-iot-free.azure-devices.net;SharedAccessKeyName=iothubowner;SharedAccessKey=4RSZw******A=` |
+| `BetaKey`                | Just generate a random guid, doesn't matter what it is | `e7b27366-a893-45d3-bd84-faf1de87e8f7`                                                                      |
+| `SlackVerificationToken` | Verification Token from your slack app homepage        | `3xandj83ndjkfPjndfDSdndf`                                                                                  |
+
 ## IoT Hub Setup for local development
 
 1. Create an IoTHub Account (Free Tier) -- since you can only have 1 of these, you may want to use an existing one, or create a new one.
