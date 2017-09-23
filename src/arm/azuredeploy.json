@@ -53,7 +53,8 @@
     "appServiceName": "[concat(parameters('resourcePrefix'), '-APP')]",
     "storageName": "[replace(toLower(concat(parameters('resourcePrefix'), '-STG')),'-','')]",
     "insightsName": "[concat(parameters('resourcePrefix'), '-INS')]",
-    "databaseName": "[toLower(concat(parameters('resourcePrefix'),'-DB'))]"
+    "databaseName": "[toLower(concat(parameters('resourcePrefix'),'-DB'))]",
+    "iotHubName": "[concat(parameters('resourcePrefix'),'-IOT')]"
   },
   "resources": [{
       "apiVersion": "2016-07-01",
@@ -105,12 +106,40 @@
       }
     },
     {
+      "name": "[variables('iotHubName')]",
+      "type": "Microsoft.Devices/IotHubs",
+      "apiVersion": "2017-01-19",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "eventHubEndpoints": {
+          "events": {
+            "retentionTimeInDays": 1,
+            "partitionCount": 2
+          }
+        },
+        "cloudToDevice": {
+          "defaultTtlAsIso8601": "PT1M",
+          "maxDeliveryCount": 10,
+          "feedback": {
+            "maxDeliveryCount": 10,
+            "ttlAsIso8601": "PT1M",
+            "lockDurationAsIso8601": "PT60S"
+          }
+        }
+      },
+      "sku": {
+        "name": "F1",
+        "capacity": 1
+      }
+    },
+    {
       "name": "[variables('appServiceName')]",
       "type": "Microsoft.Web/sites",
       "dependsOn": [
         "[resourceId('Microsoft.Storage/storageAccounts', variables('storageName'))]",
         "[resourceId('microsoft.insights/components/', variables('insightsName'))]",
-        "[variables('databaseName')]"
+        "[variables('databaseName')]",
+        "[variables('iotHubName')]"
       ],
       "properties": {
         "siteConfig": {
