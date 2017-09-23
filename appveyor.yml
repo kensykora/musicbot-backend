@@ -62,6 +62,8 @@ notifications:
 artifacts:
   - path: install.log
     name: Cosmos DB Install Log
+init:
+  - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
 install:
   - npm install -g mocha
   - npm install -g mocha-multi-reporters
