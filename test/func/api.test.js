@@ -5,7 +5,7 @@ var baseUrl = process.env.BASE_URL == null ? "http://localhost:7071/api" : proce
 var testType = process.env.TEST_TYPE == null ? "local" : process.env.TEST_TYPE
 
 function pathTo(path) {
-    return baseUrl + path
+    return baseUrl + path;
 }
 
 describe(testType + " - Calling Play", function() {
@@ -34,7 +34,7 @@ describe(testType + " - Creating a Device", function() {
 
     it("should have a registration code", function() {
         return expect(deviceCall).to.have.json('RegistrationCode', '307c15')
-    })
+    });
 })
 
 describe(testType + " - Creating a Device - Errors", function() {
@@ -48,10 +48,10 @@ describe(testType + " - Creating a Device - Errors", function() {
     it("should 400 on missing DeviceId", function() {
         deviceCall = chakram.put(pathTo('/device', { }));
         return expect(deviceCall).to.have.status(400);
-    })
+    });
 
     it("should 400 on invalid Guid", function() {
         deviceCall = chakram.put(pathTo('/device', { "DeviceId": "ABC123" }));
         return expect(deviceCall).to.have.status(400);
-    })
+    });
 })

@@ -69,6 +69,7 @@ build_script:
 
   # Integration Test locally
   - ps: .\test\func\Start-CosmosDb.ps1
+  - ps: Copy-Item src/func/_local.settings.json -Destination src/func/local.settings.json
   - ps: $funcDir = $(pwd).Path + '\src\func\bin\Release\Net47'
   - ps: $funcJob = Start-Job -FilePath .\test\func\Start-FuncHost.ps1 -ArgumentList $funcDir
   - ps: Start-Sleep -s 15 # give it some startup time
