@@ -8,6 +8,7 @@ using Moq;
 
 using MusicBot.App.Commands;
 using MusicBot.App.Data;
+using MusicBot.App.Test.Context;
 
 using Xunit;
 
@@ -21,19 +22,6 @@ namespace MusicBot.App.Test
         }
 
         private readonly RegistrationTestsContext _ctx;
-
-        [Fact]
-        public void Register_AcceptsRegistrationCode()
-        {
-            // arrange
-            var command = "ABC123";
-
-            // act
-            var registerCommand = new RegistrationCommand(command);
-
-            // assert
-            Assert.Equal(command, registerCommand.RegistrationCode);
-        }
 
         [Fact]
         public void RegisterDevice_AcceptsGuid()
@@ -78,6 +66,20 @@ namespace MusicBot.App.Test
         }
 
         [Fact]
+        public async Task RegisterDevice_RegistersWithIoTHub()
+        {
+            // arrange
+            var deviceHub = _ctx.GetStandardMockDeviceHub();
+            var registerDeviceCommand = _ctx.GetStandardRegisterDeviceCommand(deviceHubIs: deviceHub.Object);
+
+            // act
+            await registerDeviceCommand.ExecuteAsync();
+
+            // assert
+            deviceHub.Verify(x => x.RegisterDeviceAsync(It.Is<Guid>(y => y.Equals(_ctx.StandardDeviceId))));
+        }
+
+        [Fact]
         public async Task RegisterDevice_ReturnsRegistrationCode()
         {
             // arrange
@@ -111,6 +113,16 @@ namespace MusicBot.App.Test
             Assert.NotNull(result1.RegistrationCode);
             Assert.NotEmpty(result1.RegistrationCode);
             Assert.Equal(result1.RegistrationCode, result2.RegistrationCode);
+        }
+
+        [Fact]
+        public async Task RegisterDevice_ThrowsArgumentException_IfGuidIsEmpty()
+        {
+            // arrange
+            var registerDeviceCommand = _ctx.GetStandardRegisterDeviceCommand(new Guid());
+
+            // act / assert
+            await Assert.ThrowsAsync<ArgumentException>(async () => await registerDeviceCommand.ExecuteAsync());
         }
 
         [Fact]
@@ -151,30 +163,6 @@ namespace MusicBot.App.Test
 
             // assert
             Assert.Equal(_ctx.StandardDeviceRegistration.RegistrationCode, result.RegistrationCode);
-        }
-
-        [Fact]
-        public async Task RegisterDevice_RegistersWithIoTHub()
-        {
-            // arrange
-            var deviceHub = _ctx.GetStandardMockDeviceHub();
-            var registerDeviceCommand = _ctx.GetStandardRegisterDeviceCommand(deviceHubIs: deviceHub.Object);
-
-            // act
-            var result = await registerDeviceCommand.ExecuteAsync();
-
-            // assert
-            deviceHub.Verify(x => x.RegisterDeviceAsync(It.Is<Guid>(y => y.Equals(_ctx.StandardDeviceId))));
-        }
-
-        [Fact]
-        public async Task RegisterDevice_ThrowsArgumentException_IfGuidIsEmpty()
-        {
-            // arrange
-            var registerDeviceCommand = _ctx.GetStandardRegisterDeviceCommand(deviceIdIs: new Guid());
-
-            // act / assert
-            await Assert.ThrowsAsync<ArgumentException>(async () => await registerDeviceCommand.ExecuteAsync());
         }
     }
 }

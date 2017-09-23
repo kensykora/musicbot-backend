@@ -107,7 +107,7 @@
     <Compile Include="Models\MusicBotDevice.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Commands\RegisterDeviceCommand.cs" />
-    <Compile Include="Commands\RegistrationCommand.cs" />
+    <Compile Include="Commands\DeviceActivationCommand.cs" />
     <Compile Include="Commands\VoidCommandResult.cs" />
   </ItemGroup>
   <ItemGroup>

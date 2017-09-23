@@ -124,11 +124,14 @@
     <Otherwise />
   </Choose>
   <ItemGroup>
+    <Compile Include="ActivationTests.cs" />
+    <Compile Include="Context\ActivationTestsContext.cs" />
+    <Compile Include="Context\BaseTestsContext.cs" />
     <Compile Include="RegistrationTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RegistrationTests.Integration.IoTHub.cs" />
-    <Compile Include="RegistrationTests.Integration.Database.cs" />
-    <Compile Include="RegistrationTestsContext.cs" />
+    <Compile Include="Integration\RegistrationTests.Integration.IoTHub.cs" />
+    <Compile Include="Integration\RegistrationTests.Integration.Database.cs" />
+    <Compile Include="Context\RegistrationTestsContext.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

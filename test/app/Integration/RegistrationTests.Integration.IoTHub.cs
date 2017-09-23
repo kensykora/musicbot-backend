@@ -3,19 +3,21 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
+using MusicBot.App.Test.Context;
+
 using Xunit;
 
-namespace MusicBot.App.Test
+namespace MusicBot.App.Test.Integration
 {
     [Trait("Category", "Integration")]
     public class RegistrationIoTHubIntegrationTests : IClassFixture<RegistrationTestsIoTHubIntegrationContext>
     {
-        private readonly RegistrationTestsIoTHubIntegrationContext _ctx;
-
         public RegistrationIoTHubIntegrationTests(RegistrationTestsIoTHubIntegrationContext ctx)
         {
             _ctx = ctx;
         }
+
+        private readonly RegistrationTestsIoTHubIntegrationContext _ctx;
 
         [Fact]
         public async Task RegisterDevices_CanRegisterHubDevices()

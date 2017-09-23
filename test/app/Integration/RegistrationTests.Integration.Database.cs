@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
+using MusicBot.App.Test.Context;
+
 using Xunit;
 
-namespace MusicBot.App.Test
+namespace MusicBot.App.Test.Integration
 {
     [Trait("Category", "Integration")]
     public class RegistrationDatabaseIntegrationTests : IClassFixture<RegistrationTestsDatabaseIntegrationContext>

@@ -12,6 +12,6 @@ namespace MusicBot.App.Devices
     {
         Task RegisterDeviceAsync(Guid deviceId);
 
-        Task<Models.MusicBotDevice> GetByIdAsync(Guid id);
+        Task<MusicBotDevice> GetByIdAsync(Guid id);
     }
 }
