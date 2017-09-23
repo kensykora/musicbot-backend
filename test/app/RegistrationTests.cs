@@ -166,5 +166,15 @@ namespace MusicBot.App.Test
             // assert
             deviceHub.Verify(x => x.RegisterDeviceAsync(It.Is<Guid>(y => y.Equals(_ctx.StandardDeviceId))));
         }
+
+        [Fact]
+        public async Task RegisterDevice_ThrowsArgumentException_IfGuidIsEmpty()
+        {
+            // arrange
+            var registerDeviceCommand = _ctx.GetStandardRegisterDeviceCommand(deviceIdIs: new Guid());
+
+            // act / assert
+            await Assert.ThrowsAsync<ArgumentException>(async () => await registerDeviceCommand.ExecuteAsync());
+        }
     }
 }

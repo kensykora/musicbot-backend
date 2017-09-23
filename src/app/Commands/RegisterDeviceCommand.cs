@@ -25,6 +25,11 @@ namespace MusicBot.App.Commands
 
         public override async Task<RegisterDeviceCommandResult> ExecuteAsync()
         {
+            if (DeviceId == Guid.Empty)
+            {
+                throw new ArgumentException("DeviceId must be set");
+            }
+
             var existing = await _database.FirstOrDefault(x => x.DeviceId == DeviceId);
             if (existing != null)
             {
