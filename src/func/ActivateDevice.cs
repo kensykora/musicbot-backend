@@ -22,23 +22,17 @@ namespace MusicBot.Functions
             TraceWriter log)
         {
             var data = await req.Content.ReadAsFormDataAsync();
-            var resp = SlackFunction.Run(req, data, log);
+            var resp = new SlackSlashCommandRequest(data);
 
-            if (resp != null)
-                return resp;
-
-            return req.CreateResponse(HttpStatusCode.OK);
-        }
-    }
-
-    public static class SlackFunction
-    {
-        public static HttpResponseMessage Run(HttpRequestMessage req, NameValueCollection data, TraceWriter log)
-        {
-            if (string.IsNullOrEmpty(data["token"]) || data["token"] != Config.Instance.SlackVerificationToken)
+            if (resp.Token != Config.Instance.SlackVerificationToken)
                 return req.CreateResponse(HttpStatusCode.Unauthorized);
 
-            return null;
+            if (resp.Text == null)
+            {
+                return req.CreateResponse(HttpStatusCode.BadRequest);
+            }
+
+            return req.CreateResponse(HttpStatusCode.OK);
         }
     }
 }
