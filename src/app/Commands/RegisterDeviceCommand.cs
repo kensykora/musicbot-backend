@@ -64,7 +64,7 @@ namespace MusicBot.App.Commands
 
             while (i >= 0)
             {
-                var test = code.Substring(i, CodeLength);
+                var test = code.Substring(i, CodeLength).ToUpper();
                 if (!await _database.AnyAsync(x => x.RegistrationCode.Equals(test)))
                 {
                     return test;

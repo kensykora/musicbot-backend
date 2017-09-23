@@ -10,15 +10,12 @@ using Newtonsoft.Json;
 
 namespace MusicBot.App.Data
 {
-    public class DeviceRegistration : Document
+    public class DeviceRegistration
     {
-        [JsonProperty]
         public Guid DeviceId { get; set; }
 
-        [JsonProperty]
         public string RegistrationCode { get; set; }
 
-        [JsonProperty]
         public DateTime? ActivatedOn { get; set; }
     }
 }

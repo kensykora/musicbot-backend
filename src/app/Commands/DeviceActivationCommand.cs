@@ -21,7 +21,7 @@ namespace MusicBot.App.Commands
 
         public override async Task<DeviceActivationCommandResponse> ExecuteAsync()
         {
-            var device =  await _database.FirstOrDefault(x => x.RegistrationCode.Equals(RegistrationCode));
+            var device =  await _database.FirstOrDefault(x => x.RegistrationCode.Equals(RegistrationCode.ToUpper()));
 
             if (device == null)
             {

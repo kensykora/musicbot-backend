@@ -46,7 +46,7 @@ describe(testType + " - Calling Play", function () {
 describe(testType + " - Creating a Device", function () {
     var deviceCall;
     var id = uuid();
-    var code = id.substring(30);
+    var code = id.substring(30).toUpperCase();
     this.slow(500);
 
     var headers = {
@@ -119,9 +119,19 @@ describe(testType + " - Creating a Device - Errors", function () {
 
 describe(testType + " - Activate Device", function () {
 
-    it("should only be called from slack", function () {
-        var call = chakram.post(pathTo('/device/activate'), null, getSlackSlashCommandData('activate', 'ABC123'));
-        return expect(call).to.have.status(200);
+    var deviceId = uuid();
+    var registrationCode;
+    before("Setup Registration Call", function() { 
+        var registrationCall = chakram.put(pathTo('/device'), {
+            "DeviceId": deviceId
+        }, {
+            "headers": {
+                'Authorization': 'BetaKey ' + process.env.BetaKey
+            }
+        });
+        return registrationCall.then(function(response) {
+            registrationCode = response.body.RegistrationCode;
+        });
     });
 
     it("should 401 if token is incorrect", function () {
@@ -132,5 +142,16 @@ describe(testType + " - Activate Device", function () {
     it("should 400 if text is missing", function() {
         var call = chakram.post(pathTo('/device/activate'), null, getSlackSlashCommandData('activate'));
         return expect(call).to.have.status(400);
+    });
+
+    it("should 400 if code is invalid", function () {
+        var call = chakram.post(pathTo('/device/activate'), null, getSlackSlashCommandData('activate', 'ABC123'));
+        return expect(call).to.have.status(400);
+    });
+
+    it("should successfully be able to be activated", function () {
+        
+        var call = chakram.post(pathTo('/device/activate'), null, getSlackSlashCommandData('activate', registrationCode));
+        return expect(call).to.have.status(200);
     });
 });

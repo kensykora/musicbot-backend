@@ -47,7 +47,7 @@ namespace MusicBot.App.Test
             var result = await registerDeviceCommand.ExecuteAsync();
 
             // assert
-            Assert.Equal("d1d01e", result.RegistrationCode);
+            Assert.Equal("D1D01E", result.RegistrationCode);
         }
 
         [Fact]
@@ -145,7 +145,7 @@ namespace MusicBot.App.Test
             var result = await registerDeviceCommand.ExecuteAsync();
 
             // assert
-            Assert.Equal("8d1d01", result.RegistrationCode);
+            Assert.Equal("8D1D01", result.RegistrationCode);
         }
 
         [Fact]

@@ -11,7 +11,7 @@ using Microsoft.Azure.Documents.Linq;
 
 namespace MusicBot.App.Data
 {
-    public class DocumentDbRepository<T> : IDocumentDbRepository<T> where T : Document
+    public class DocumentDbRepository<T> : IDocumentDbRepository<T> where T : class
     {
         private readonly DocumentClient _client;
         private readonly string _collectionId;
