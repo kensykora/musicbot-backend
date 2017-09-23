@@ -23,14 +23,34 @@ namespace MusicBot.Functions
         public static async Task<HttpResponseMessage> Run(
             [HttpTrigger(AuthorizationLevel.Anonymous, "PUT", Route = null)] HttpRequestMessage req, TraceWriter log)
         {
+            if (req.Headers.Authorization == null
+                || !req.Headers.Authorization.Scheme.Equals("BetaKey", StringComparison.OrdinalIgnoreCase) 
+                || !req.Headers.Authorization.Parameter.Equals(Config.Instance.BetaKey))
+            {
+                return req.CreateResponse(HttpStatusCode.Unauthorized, "BetaKey authorization required");
+            }
+
             var body = await req.Content.ReadAsStringAsync();
             if (string.IsNullOrEmpty(body))
                 return req.CreateResponse(HttpStatusCode.BadRequest, "DeviceId is required");
 
+            HttpResponseMessage errorResponse = null;
             var registration =
-                JsonConvert.DeserializeObject<DeviceRegistrationRequest>(await req.Content.ReadAsStringAsync());
+                JsonConvert.DeserializeObject<DeviceRegistrationRequest>(await req.Content.ReadAsStringAsync(), new JsonSerializerSettings
+                {
+                    Error = (obj, args) =>
+                    {
+                        errorResponse = req.CreateResponse(HttpStatusCode.BadRequest, args.ErrorContext.Error.Message);
+                        args.ErrorContext.Handled = true;
+                    }
+                });
 
-            if (!registration.DeviceId.HasValue)
+            if (errorResponse != null)
+            {
+                return errorResponse;
+            }
+
+            if (registration?.DeviceId == null || registration?.DeviceId == Guid.Empty)
             {
                 log.Error("Invalid Request - DeviceId is required.");
                 return req.CreateResponse(HttpStatusCode.BadRequest, "DeviceId is required");

@@ -14,7 +14,8 @@ environment:
     secure: /8nuu389OsrB4Ylkb0aM6AsXqVTYfhqMibLEH8SZDNAEOIMPe2SiR8Im/jFX6rQ2
   IoTHubConnectionString:
     secure: mnKBGBKHeFfUK/uQR62DSDUpna0cwdyTPl6Z5zq8oqmD73GXsl+ns5KPuTQk9yprtu6EEp6dZwbWHNzrhJgO8cselyhiSsPtrb7o2t2CHG/UlVuvG+HfqY4j7Ny7Vfx6vYZ/hcrd8fIOA4B9+LCUVzdefmN8UQc6OVJL7YKaTdml7MkN+f+pDtSNS4tScy+z
-
+  BetaKey:
+    secure: NC4wPWJywQE6tZK65ZSEaooaMdT4yLfgiYGe9AGa/zmOnEgMp1SwOkopIpONF3yl
 for:
 
 - branches:

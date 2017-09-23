@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
+using System.Runtime.CompilerServices;
 
 namespace MusicBot.App
 {
@@ -10,13 +11,14 @@ namespace MusicBot.App
         private static Config _instance;
         public static Config Instance => _instance ?? (_instance = new Config());
 
-        public string Version => GetValue("MusicBotVersion");
-        public string DocumentDbKey => GetValue("DocumentDbKey");
-        public string DocumentDbServer => GetValue("DocumentDbServer");
-        public string DocumentDbDatabaseId => GetValue("DocumentDbDatabaseId");
-        public string IoTHubConnectionString => GetValue("IoTHubConnectionString");
+        public string Version => GetValue();
+        public string DocumentDbKey => GetValue();
+        public string DocumentDbServer => GetValue();
+        public string DocumentDbDatabaseId => GetValue();
+        public string IoTHubConnectionString => GetValue();
+        public string BetaKey => GetValue();
 
-        private string GetValue(string key)
+        private string GetValue([CallerMemberName]string key = "")
         {
             var envVal = Environment.GetEnvironmentVariable(key);
             if (!string.IsNullOrEmpty(envVal))
