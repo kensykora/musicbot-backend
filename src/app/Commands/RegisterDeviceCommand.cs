@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
+using Microsoft.Azure.Devices.Common.Exceptions;
+
 using MusicBot.App.Data;
 using MusicBot.App.Devices;
 
@@ -43,7 +45,14 @@ namespace MusicBot.App.Commands
                 RegistrationCode = code
             });
 
-            await _deviceHub.RegisterDeviceAsync(DeviceId);
+            try
+            {
+                await _deviceHub.RegisterDeviceAsync(DeviceId);
+            }
+            catch (DeviceAlreadyExistsException)
+            {
+                // TODO: Log notice of subsequent registration
+            }
 
             return new RegisterDeviceCommandResult(code);
         }

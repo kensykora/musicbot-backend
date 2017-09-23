@@ -1,4 +1,5 @@
 chakram = require('chakram');
+uuid = require('uuid/v4');
 expect = chakram.expect;
 
 var baseUrl = process.env.BASE_URL == null ? "http://localhost:7071/api" : process.env.BASE_URL;
@@ -23,9 +24,11 @@ describe(testType + " - Calling Play", function() {
 
 describe(testType + " - Creating a Device", function() {
     var deviceCAll;
+    var id = uuid();
+    var code = id.substring(30);
 
     before("Create Device", function() {
-        deviceCall = chakram.put(pathTo('/device'), { "DeviceId": "517a6d88-b650-4466-94de-fbd096307c15" });
+        deviceCall = chakram.put(pathTo('/device'), { "DeviceId": id });
     });
 
     it("should return status code 200", function() {
@@ -33,7 +36,7 @@ describe(testType + " - Creating a Device", function() {
     });
 
     it("should have a registration code", function() {
-        return expect(deviceCall).to.have.json('RegistrationCode', '307c15')
+        return expect(deviceCall).to.have.json('RegistrationCode', code)
     });
 })
 

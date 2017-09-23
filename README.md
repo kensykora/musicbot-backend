@@ -26,6 +26,8 @@
 1. Create an IoTHub Account (Free Tier) -- since you can only have 1 of these, you may want to use an existing one, or create a new one.
 1. Stick an "owner" access policy connection string as an environment variable `IoTHubConnectionString` (then restart visual studio if it's open)
 
+Note: This is potentially problematic for integration tests, as we cannot assume it is a good idea to clear out all registrations, so we do not reset IoT hub when integration tests run. You may occasionally encounter failures due to conflicts.
+
 ## Deployment
 
 Dev and Prod are configured as github deployments to functions app. Thus, the linked template chooses not to include the functions deployment. For setting up dev and prod, manual deployment steps are required for pointing the functions app at the github for the `dev` and `prod` branches respectively.

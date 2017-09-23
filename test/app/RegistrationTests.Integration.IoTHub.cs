@@ -31,5 +31,21 @@ namespace MusicBot.App.Test
             var device = await _ctx.IoTHubClient.GetByIdAsync(id);
             Assert.Equal(id, device.DeviceId);
         }
+
+        [Fact]
+        public async Task RegisterDevices_WorksWithMultipleCallsOfSameDevice()
+        {
+            // arrange
+            var id = Guid.NewGuid();
+            var registerDeviceCommand = _ctx.GetStandardRegisterDeviceCommand(id);
+
+            // act
+            var response1 = await registerDeviceCommand.ExecuteAsync();
+            var response2 = await registerDeviceCommand.ExecuteAsync();
+
+            // assert
+            var device = await _ctx.IoTHubClient.GetByIdAsync(id);
+            Assert.Equal(response1.RegistrationCode, response2.RegistrationCode);
+        }
     }
 }
