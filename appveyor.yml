@@ -117,7 +117,7 @@ build_script:
   # Test on Azure
   - set BASE_URL=https://%AZ_RG_INT_PREFIX%%APPVEYOR_BUILD_NUMBER%-APP.azurewebsites.net/api
   - SET TEST_TYPE=integration
-  - ps: Invoke-WebRequest -URI 'https://$($env:AZ_RG_INT_PREFIX)$($env:APPVEYOR_BUILD_NUMBER)-APP.azurewebsites.net/api/version' -TimeoutSec 60 # Prime it
+  - ps: Invoke-WebRequest -URI "https://$($env:AZ_RG_INT_PREFIX)$($env:APPVEYOR_BUILD_NUMBER)-APP.azurewebsites.net/api/version" -TimeoutSec 60 # Prime it
   - >
       mocha --slow %MOCHA_SLOW_THRESHOLD_MS% 
       --timeout %MOCHA_TIMEOUT_THRESHOLD_MS% 
