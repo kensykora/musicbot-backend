@@ -79,11 +79,11 @@ build_script:
 
 test_script:
   # Unit Tests
-  - ps: .\packages\xunit.runner.console.2.2.0\tools\xunit.console.exe -notrait "Category=Integration" -parallel none
+  - ps: .\packages\xunit.runner.console.2.2.0\tools\xunit.console.exe "test/app/bin/Release/MusicBot.App.Test.dll" -notrait "Category=Integration" -parallel none
 
   # Database Integration Tests
   - ps: .\test\func\Start-CosmosDb.ps1
-  - ps: .\packages\xunit.runner.console.2.2.0\tools\xunit.console.exe -trait "IntegrationType=Database" -parallel none
+  - ps: .\packages\xunit.runner.console.2.2.0\tools\xunit.console.exe "test/app/bin/Release/MusicBot.App.Test.dll" -trait "IntegrationType=Database" -parallel none
 
   # If this is a PR, we're done
   - ps: if ($env:APPVEYOR_PULL_REQUEST_NUMBER -ne $null) { Exit-AppVeyorBuild }
@@ -117,7 +117,7 @@ test_script:
 
   # IoT Hub Integration Tests
   - ps: .\test\func\Start-CosmosDb.ps1
-  - ps: .\packages\xunit.runner.console.2.2.0\tools\xunit.console.exe -trait "IntegrationType=IoTHub" -parallel none
+  - ps: .\packages\xunit.runner.console.2.2.0\tools\xunit.console.exe "test/app/bin/Release/MusicBot.App.Test.dll" -trait "IntegrationType=IoTHub" -parallel none
 
   # Test on Azure
   - set BASE_URL=https://%AZ_RG_INT_PREFIX%%APPVEYOR_BUILD_NUMBER%-APP.azurewebsites.net/api
