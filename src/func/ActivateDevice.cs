@@ -32,7 +32,7 @@ namespace MusicBot.Functions
 
             if (string.IsNullOrWhiteSpace(slackRequest.Text) || slackRequest.Text.Trim().Length != RegisterDeviceCommand.CodeLength)
             {
-                log.Verbose($"Invalid Code {slackRequest.Text.Trim()}");
+                log.Verbose($"Invalid Code {slackRequest.Text?.Trim()}");
                 return req.CreateResponse(HttpStatusCode.BadRequest, new SlackSlashCommandResponse
                 {
                     ResponseType = MessageResponseType.Ephemeral,
