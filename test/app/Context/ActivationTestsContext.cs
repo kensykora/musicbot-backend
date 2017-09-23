@@ -25,7 +25,5 @@ namespace MusicBot.App.Test.Context
 
             return new DeviceActivationCommand(registrationCodeIs, databaseIs);
         }
-
-        public string StandardDeviceRegistrationCode => "d1d01e";
     }
 }

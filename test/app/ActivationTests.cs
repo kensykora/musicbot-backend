@@ -36,7 +36,41 @@ namespace MusicBot.App.Test
             var response = await command.ExecuteAsync();
 
             // assert
-            Assert.NotNull(response);
+            Assert.Equal(ActivationStatus.Success, response.Status);
+        }
+
+        [Fact]
+        public async Task ActivatingDevice_ForNonExistingDevice_IsNotFound()
+        {
+            // arrange
+            var command = _ctx.GetStandardActivationCommand();
+
+            // act / assert
+            var result = await command.ExecuteAsync();
+
+            // assert
+            Assert.Equal(ActivationStatus.NotFound, result.Status);
+
+        }
+
+        [Fact]
+        public async Task ActivatingDevice_ThatIsAlreadyActivated_IsNotFound()
+        {
+            // arrange
+            var registrationRecord = _ctx.StandardDeviceRegistration;
+            registrationRecord.ActivatedOn = DateTime.UtcNow;
+
+            var database = _ctx.GetStandardMockDatabase<DeviceRegistration>();
+            database.Setup(x => x.FirstOrDefault(It.IsAny<Expression<Func<DeviceRegistration, bool>>>()))
+                .Returns(Task.FromResult(registrationRecord));
+            var command = _ctx.GetStandardActivationCommand(databaseIs: database.Object);
+
+            // act
+            var response = await command.ExecuteAsync();
+
+            // assert
+            Assert.Equal(ActivationStatus.NotFound, response.Status);
+
         }
     }
 }

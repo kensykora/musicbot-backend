@@ -19,6 +19,6 @@ namespace MusicBot.App.Data
         public string RegistrationCode { get; set; }
 
         [JsonProperty]
-        public DateTime ActivatedOn { get; set; }
+        public DateTime? ActivatedOn { get; set; }
     }
 }
