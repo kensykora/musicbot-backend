@@ -151,7 +151,12 @@ on_finish:
   - ps: if ($funcJob -ne $null -and $funcJob.State -ne 'Stopped') { Stop-Job $funcJob }
 
   # Tear down Azure Integration environment
-  - ps: if ($DeployedIntegrationEnvironment) { Remove-AzureRmResourceGroup -Name $env:AZ_RG_INT_PREFIX$env:APPVEYOR_BUILD_NUMBER -Force }
+  - ps: |
+      if ($DeployedIntegrationEnvironment) { 
+        $removeGroupJob = Start-Job -ScriptBlock { Remove-AzureRmResourceGroup -Name $env:AZ_RG_INT_PREFIX$env:APPVEYOR_BUILD_NUMBER -Force }
+        Start-Sleep -s 15
+        Stop-Job $removeGroupJob
+      }
 
   # Tear down pushed branch
   - if "%PushedBranch%" == "true" (git push origin --delete %AZ_RG_INT_PREFIX%%APPVEYOR_BUILD_NUMBER%)

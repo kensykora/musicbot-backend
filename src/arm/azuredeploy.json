@@ -46,6 +46,13 @@
       "metadata": {
         "description": "Yes to include function app from github as deployment. Provide repoURL and branch parameter."
       }
+    },
+    "iotHubResourceId": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Resource name of the IoT hub to use"
+      }
     }
   },
   "variables": {
@@ -54,7 +61,8 @@
     "storageName": "[replace(toLower(concat(parameters('resourcePrefix'), '-STG')),'-','')]",
     "insightsName": "[concat(parameters('resourcePrefix'), '-INS')]",
     "databaseName": "[toLower(concat(parameters('resourcePrefix'),'-DB'))]",
-    "iotHubName": "[concat(parameters('resourcePrefix'),'-IOT')]"
+    "iotHubName": "[concat(parameters('resourcePrefix'),'-IOT')]",
+    "iotHubResourceId": "[if(empty(parameters('iotHubResourceId')), resourceId('Microsoft.Devices/IotHubs', variables('iotHubName')), parameters('iotHubResourceId'))]"
   },
   "resources": [{
       "apiVersion": "2016-07-01",
@@ -110,6 +118,7 @@
       "type": "Microsoft.Devices/IotHubs",
       "apiVersion": "2017-01-19",
       "location": "[resourceGroup().location]",
+      "condition": "[empty(parameters('iotHubResourceId'))]",
       "properties": {
         "eventHubEndpoints": {
           "events": {
