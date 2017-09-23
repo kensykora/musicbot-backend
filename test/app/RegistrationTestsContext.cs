@@ -13,12 +13,29 @@ using MusicBot.App.Devices;
 
 namespace MusicBot.App.Test
 {
+    public class RegistrationTestsIoTHubIntegrationContext : RegistrationTestsContext
+    {
+        public IoTHub IoTHubClient => ConnectionFactory.Instance.IoTHubClient;
+        public override RegisterDeviceCommand GetStandardRegisterDeviceCommand(Guid? deviceIdIs = null,
+            IDocumentDbRepository<DeviceRegistration> databaseIs = null, IDeviceHub deviceHubIs = null,
+            bool useStandardValues = true)
+        {
+            if (useStandardValues && deviceHubIs == null)
+                deviceHubIs = IoTHubClient;
+
+
+            return base.GetStandardRegisterDeviceCommand(deviceIdIs, databaseIs, deviceHubIs, useStandardValues);
+        }
+    }
+
     // ReSharper disable once ClassNeverInstantiated.Global - Used by XUnit
-    public class RegistrationTestsIntegrationContext : RegistrationTestsContext
+    public class RegistrationTestsDatabaseIntegrationContext : RegistrationTestsContext
     {
         // See https://github.com/Azure/azure-documentdb-dotnet/blob/master/docs/documentdb-nosql-local-emulator.md
 
-        public RegistrationTestsIntegrationContext()
+        public DocumentDbRepository<DeviceRegistration> DeviceRegistrationDb => ConnectionFactory.Instance.DeviceRegistration;
+
+        public RegistrationTestsDatabaseIntegrationContext()
         {
             ConnectionFactory.Instance.DeviceRegistration.ClearAllAsync().Wait();
         }
@@ -28,7 +45,7 @@ namespace MusicBot.App.Test
             bool useStandardValues = true)
         {
             if (useStandardValues && databaseIs == null)
-                databaseIs = ConnectionFactory.Instance.DeviceRegistration;
+                databaseIs = DeviceRegistrationDb;
 
 
             return base.GetStandardRegisterDeviceCommand(deviceIdIs, databaseIs, deviceHubIs, useStandardValues);

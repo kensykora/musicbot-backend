@@ -25,7 +25,7 @@ namespace MusicBot.App
 
         private ConnectionFactory()
         {
-            IoTHubClient = new IoTHub();
+            IoTHubClient = new IoTHub(Config.Instance.IoTHubConnectionString);
 
             DatabaseClient = new DocumentClient(new Uri(Config.Instance.DocumentDbServer), Config.Instance.DocumentDbKey);
 

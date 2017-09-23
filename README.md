@@ -21,6 +21,11 @@
 1. Update your `src/func/local.settings.json` file with your App's Verification Token (retrieve from <https://api.slack.com/apps/<YOUR APP ID>/general> 
 1. Start invoking commands.
 
+## IoT Hub Setup for local development
+
+1. Create an IoTHub Account (Free Tier) -- since you can only have 1 of these, you may want to use an existing one, or create a new one.
+1. Stick an "owner" access policy connection string as an environment variable `IoTHubConnectionString` (then restart visual studio if it's open)
+
 ## Deployment
 
 Dev and Prod are configured as github deployments to functions app. Thus, the linked template chooses not to include the functions deployment. For setting up dev and prod, manual deployment steps are required for pointing the functions app at the github for the `dev` and `prod` branches respectively.

@@ -12,6 +12,8 @@ environment:
   MOCHA_TIMEOUT_THRESHOLD_MS: 10000
   GIT_ACCESS_TOKEN:
     secure: /8nuu389OsrB4Ylkb0aM6AsXqVTYfhqMibLEH8SZDNAEOIMPe2SiR8Im/jFX6rQ2
+  IoTHubConnectionString:
+    secure: mnKBGBKHeFfUK/uQR62DSDUpna0cwdyTPl6Z5zq8oqmD73GXsl+ns5KPuTQk9yprtu6EEp6dZwbWHNzrhJgO8cselyhiSsPtrb7o2t2CHG/UlVuvG+HfqY4j7Ny7Vfx6vYZ/hcrd8fIOA4B9+LCUVzdefmN8UQc6OVJL7YKaTdml7MkN+f+pDtSNS4tScy+z
 
 for:
 
@@ -114,7 +116,7 @@ build_script:
   # Test on Azure
   - set BASE_URL=https://%AZ_RG_INT_PREFIX%%APPVEYOR_BUILD_NUMBER%-APP.azurewebsites.net/api
   - SET TEST_TYPE=integration
-  - ps: Invoke-WebRequest -URI 'https://$($env:BASE_URL)/version' -TimeoutSec 60 # Prime it
+  - ps: Invoke-WebRequest -URI '$($env:BASE_URL)/version' -TimeoutSec 60 # Prime it
   - >
       mocha --slow %MOCHA_SLOW_THRESHOLD_MS% 
       --timeout %MOCHA_TIMEOUT_THRESHOLD_MS% 
