@@ -10,12 +10,13 @@ namespace MusicBot.App.Models
 {
     public class MusicBotDevice
     {
+        private readonly Device _device;
         public MusicBotDevice() { }
         public MusicBotDevice(Device device)
         {
-            DeviceId = new Guid(device.Id);
+            _device = device;
         }
 
-        public Guid DeviceId { get; set; }
+        public string Id => _device.Id;
     }
 }

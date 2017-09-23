@@ -29,7 +29,7 @@ namespace MusicBot.App.Test
 
             // assert
             var device = await _ctx.IoTHubClient.GetByIdAsync(id);
-            Assert.Equal(id, device.DeviceId);
+            Assert.Equal(id.ToString(), device.Id);
         }
 
         [Fact]

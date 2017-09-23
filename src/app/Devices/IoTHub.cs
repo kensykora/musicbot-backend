@@ -27,7 +27,7 @@ namespace MusicBot.App.Devices
             await _registryManager.AddDeviceAsync(new Device(deviceId.ToString()));
         }
 
-        public async Task<Models.MusicBotDevice> GetByIdAsync(Guid id)
+        public async Task<MusicBotDevice> GetByIdAsync(Guid id)
         {
             var device = await _registryManager.GetDeviceAsync(id.ToString());
 
