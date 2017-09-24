@@ -62,7 +62,7 @@ namespace MusicBot.App.Test
 
             // assert
             database.Verify(x =>
-                x.CreateItemAsync(It.Is<DeviceRegistration>(r => r.DeviceId == _ctx.StandardDeviceId)));
+                x.CreateItemAsync(It.Is<DeviceRegistration>(r => r.id == _ctx.StandardDeviceId)));
         }
 
         [Fact]
@@ -156,7 +156,7 @@ namespace MusicBot.App.Test
             database.Setup(x => x.FirstOrDefault(It.IsAny<Expression<Func<DeviceRegistration, bool>>>())).Returns(() =>
                 Task.FromResult(_ctx.StandardDeviceRegistration));
             var registerDeviceCommand =
-                _ctx.GetStandardRegisterDeviceCommand(_ctx.StandardDeviceRegistration.DeviceId, database.Object);
+                _ctx.GetStandardRegisterDeviceCommand(_ctx.StandardDeviceRegistration.id, database.Object);
 
             // act
             var result = await registerDeviceCommand.ExecuteAsync();

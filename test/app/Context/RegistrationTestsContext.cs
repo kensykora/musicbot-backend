@@ -25,13 +25,13 @@ namespace MusicBot.App.Test.Context
         }
     }
 
-    // ReSharper disable once ClassNeverInstantiated.Global - Used by XUnit
     public class RegistrationTestsDatabaseIntegrationContext : RegistrationTestsContext
     {
         public RegistrationTestsDatabaseIntegrationContext()
         {
             ConnectionFactory.Instance.DeviceRegistration.ClearAllAsync().Wait();
         }
+
         // See https://github.com/Azure/azure-documentdb-dotnet/blob/master/docs/documentdb-nosql-local-emulator.md
 
         public DocumentDbRepository<DeviceRegistration> DeviceRegistrationDb =>

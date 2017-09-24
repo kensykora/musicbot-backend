@@ -11,13 +11,27 @@ namespace MusicBot.App.Commands
     {
         private readonly IDocumentDbRepository<DeviceRegistration> _database;
 
-        public DeviceActivationCommand(string registrationCode, IDocumentDbRepository<DeviceRegistration> database)
+        public DeviceActivationCommand(string registrationCode, string teamId, string teamDomain, string channelId, string channelName, string userId, string userName, IDocumentDbRepository<DeviceRegistration> database)
         {
+            TeamId = teamId;
+            TeamDomain = teamDomain;
+            ChannelId = channelId;
+            ChannelName = channelName;
+            UserId = userId;
+            UserName = userName;
             _database = database;
             RegistrationCode = registrationCode;
         }
 
         public string RegistrationCode { get; }
+
+        public string TeamId { get; }
+
+        public string TeamDomain { get; }
+        public string ChannelId { get; }
+        public string ChannelName { get; }
+        public string UserId { get; }
+        public string UserName { get; }
 
         public override async Task<DeviceActivationCommandResponse> ExecuteAsync()
         {
@@ -34,6 +48,14 @@ namespace MusicBot.App.Commands
             }
 
             device.ActivatedOn = DateTime.UtcNow;
+            device.TeamId = TeamId;
+            device.TeamDomain = TeamDomain;
+            device.ChannelId = ChannelId;
+            device.ChannelName = ChannelName;
+            device.UserName = UserName;
+            device.UserId = UserId;
+
+            await _database.UpdateItemAsync(device);
 
             return new DeviceActivationCommandResponse(ActivationStatus.Success);
         }

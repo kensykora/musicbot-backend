@@ -40,8 +40,10 @@ namespace MusicBot.Functions
                 });
             }
 
-            log.Verbose($"Attempting to register code {slackRequest.Text.Trim()}");
-            var command = new DeviceActivationCommand(slackRequest.Text.Trim(), ConnectionFactory.Instance.DeviceRegistration);
+            var code = slackRequest.Text.Trim();
+
+            log.Verbose($"Attempting to register code {code}");
+            var command = new DeviceActivationCommand(code, slackRequest.TeamId, slackRequest.TeamDomain, slackRequest.ChannelId, slackRequest.ChannelName, slackRequest.UserId, slackRequest.UserName, ConnectionFactory.Instance.DeviceRegistration);
             var result = await command.ExecuteAsync();
 
             switch (result.Status)

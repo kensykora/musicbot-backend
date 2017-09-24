@@ -11,7 +11,7 @@ using Microsoft.Azure.Documents.Linq;
 
 namespace MusicBot.App.Data
 {
-    public class DocumentDbRepository<T> : IDocumentDbRepository<T> where T : class
+    public class DocumentDbRepository<T> : IDocumentDbRepository<T> where T : CosmosDocument 
     {
         private readonly DocumentClient _client;
         private readonly string _collectionId;
@@ -52,7 +52,7 @@ namespace MusicBot.App.Data
         public async Task<Document> CreateItemAsync(T item)
         {
             return await _client.CreateDocumentAsync(
-                UriFactory.CreateDocumentCollectionUri(_databaseId, _collectionId), item);
+                UriFactory.CreateDocumentCollectionUri(_databaseId, _collectionId), item, null, false);
         }
 
         public async Task<T> FirstOrDefault(Expression<Func<T, bool>> predicate)
@@ -65,8 +65,24 @@ namespace MusicBot.App.Data
 
         public async Task ClearAllAsync()
         {
-            await _client.DeleteDocumentCollectionAsync(_uri);
+            try
+            {
+                await _client.ReadDocumentCollectionAsync(_uri);
+                await _client.DeleteDocumentCollectionAsync(_uri);
+            }
+            catch (DocumentClientException e)
+            {
+                if (e.StatusCode != HttpStatusCode.NotFound)
+                    throw;
+            }
+
             await CreateCollectionIfNotExistsAsync();
+        }
+
+        public async Task UpdateItemAsync(T item)
+        {
+            await _client.ReplaceDocumentAsync(
+                UriFactory.CreateDocumentUri(_databaseId, _collectionId, item.id.ToString()), item);
         }
 
         private async Task CreateCollectionIfNotExistsAsync()
@@ -95,5 +111,6 @@ namespace MusicBot.App.Data
         Task<Document> CreateItemAsync(T item);
         Task<T> FirstOrDefault(Expression<Func<T, bool>> predicate);
         Task ClearAllAsync();
+        Task UpdateItemAsync(T item);
     }
 }

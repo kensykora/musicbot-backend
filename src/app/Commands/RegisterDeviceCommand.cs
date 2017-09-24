@@ -29,10 +29,10 @@ namespace MusicBot.App.Commands
         {
             if (DeviceId == Guid.Empty)
             {
-                throw new ArgumentException("DeviceId must be set");
+                throw new ArgumentException("Id must be set");
             }
 
-            var existing = await _database.FirstOrDefault(x => x.DeviceId == DeviceId);
+            var existing = await _database.FirstOrDefault(x => x.id == DeviceId);
             if (existing != null)
             {
                 return new RegisterDeviceCommandResult(existing.RegistrationCode);
@@ -41,7 +41,7 @@ namespace MusicBot.App.Commands
             var code = await GenerateCode(DeviceId);
             await _database.CreateItemAsync(new DeviceRegistration
             {
-                DeviceId = DeviceId,
+                id = DeviceId,
                 RegistrationCode = code
             });
 

@@ -32,7 +32,7 @@ namespace MusicBot.Functions
 
             var body = await req.Content.ReadAsStringAsync();
             if (string.IsNullOrEmpty(body))
-                return req.CreateResponse(HttpStatusCode.BadRequest, "DeviceId is required");
+                return req.CreateResponse(HttpStatusCode.BadRequest, "Id is required");
 
             HttpResponseMessage errorResponse = null;
             var registration =
@@ -52,8 +52,8 @@ namespace MusicBot.Functions
 
             if (registration?.DeviceId == null || registration?.DeviceId == Guid.Empty)
             {
-                log.Error("Invalid Request - DeviceId is required.");
-                return req.CreateResponse(HttpStatusCode.BadRequest, "DeviceId is required");
+                log.Error("Invalid Request - Id is required.");
+                return req.CreateResponse(HttpStatusCode.BadRequest, "Id is required");
             }
 
             log.Info($"Put Device - {registration.DeviceId.Value}");

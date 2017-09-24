@@ -36,7 +36,7 @@ namespace MusicBot.App.Test.Integration
             var result = await registerDeviceCommand.ExecuteAsync();
 
             // assert
-            var record = _ctx.DeviceRegistrationDb.FirstOrDefault(x => x.DeviceId == id);
+            var record = _ctx.DeviceRegistrationDb.FirstOrDefault(x => x.id == id);
             Assert.Equal(result.RegistrationCode, record.Result.RegistrationCode);
         }
     }
