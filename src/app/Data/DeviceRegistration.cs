@@ -2,12 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 
-using Newtonsoft.Json;
-
 namespace MusicBot.App.Data
 {
     public class DeviceRegistration : CosmosDocument
-    { 
+    {
         public string RegistrationCode { get; set; }
 
         public DateTime? ActivatedOn { get; set; }

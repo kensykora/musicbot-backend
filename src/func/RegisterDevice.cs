@@ -24,7 +24,7 @@ namespace MusicBot.Functions
             [HttpTrigger(AuthorizationLevel.Anonymous, "PUT", Route = null)] HttpRequestMessage req, TraceWriter log)
         {
             if (req.Headers.Authorization == null
-                || !req.Headers.Authorization.Scheme.Equals("BetaKey", StringComparison.OrdinalIgnoreCase) 
+                || !req.Headers.Authorization.Scheme.Equals("BetaKey", StringComparison.OrdinalIgnoreCase)
                 || !req.Headers.Authorization.Parameter.Equals(Config.Instance.BetaKey))
             {
                 return req.CreateResponse(HttpStatusCode.Unauthorized, "BetaKey authorization required");
@@ -36,14 +36,16 @@ namespace MusicBot.Functions
 
             HttpResponseMessage errorResponse = null;
             var registration =
-                JsonConvert.DeserializeObject<DeviceRegistrationRequest>(await req.Content.ReadAsStringAsync(), new JsonSerializerSettings
-                {
-                    Error = (obj, args) =>
+                JsonConvert.DeserializeObject<DeviceRegistrationRequest>(await req.Content.ReadAsStringAsync(),
+                    new JsonSerializerSettings
                     {
-                        errorResponse = req.CreateResponse(HttpStatusCode.BadRequest, args.ErrorContext.Error.Message);
-                        args.ErrorContext.Handled = true;
-                    }
-                });
+                        Error = (obj, args) =>
+                        {
+                            errorResponse = req.CreateResponse(HttpStatusCode.BadRequest,
+                                args.ErrorContext.Error.Message);
+                            args.ErrorContext.Handled = true;
+                        }
+                    });
 
             if (errorResponse != null)
             {
@@ -59,7 +61,8 @@ namespace MusicBot.Functions
             log.Info($"Put Device - {registration.DeviceId.Value}");
 
             var command =
-                new RegisterDeviceCommand(registration.DeviceId.Value, ConnectionFactory.Instance.DeviceRegistration, ConnectionFactory.Instance.IoTHubClient);
+                new RegisterDeviceCommand(registration.DeviceId.Value, ConnectionFactory.Instance.DeviceRegistration,
+                    ConnectionFactory.Instance.IoTHubClient);
             var result = await command.ExecuteAsync();
 
             return req.CreateResponse(HttpStatusCode.OK, new DeviceRegistrationResponse

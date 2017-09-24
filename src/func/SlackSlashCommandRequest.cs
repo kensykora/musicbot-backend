@@ -21,7 +21,6 @@ namespace MusicBot.Functions
             Command = req.Get("command");
             Text = req.Get("text");
             ResponseUrl = req.Get("response_url");
-
         }
 
         public string Token { get; set; }

@@ -16,7 +16,8 @@ namespace MusicBot.App.Commands
         private readonly IDocumentDbRepository<DeviceRegistration> _database;
         private readonly IDeviceHub _deviceHub;
 
-        public RegisterDeviceCommand(Guid deviceId, IDocumentDbRepository<DeviceRegistration> database, IDeviceHub deviceHub)
+        public RegisterDeviceCommand(Guid deviceId, IDocumentDbRepository<DeviceRegistration> database,
+            IDeviceHub deviceHub)
         {
             _database = database;
             _deviceHub = deviceHub;
@@ -59,7 +60,7 @@ namespace MusicBot.App.Commands
 
         private async Task<string> GenerateCode(Guid deviceId)
         {
-            var code = deviceId.ToString().Replace("-","");
+            var code = deviceId.ToString().Replace("-", "");
             var i = code.Length - CodeLength;
 
             while (i >= 0)

@@ -50,7 +50,6 @@ namespace MusicBot.App.Test
 
             // assert
             Assert.Equal(ActivationStatus.NotFound, result.Status);
-
         }
 
         [Fact]
@@ -70,7 +69,6 @@ namespace MusicBot.App.Test
 
             // assert
             Assert.Equal(ActivationStatus.NotFound, response.Status);
-
         }
     }
 }

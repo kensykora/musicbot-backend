@@ -18,6 +18,7 @@ namespace MusicBot.App.Devices
         {
             _registryManager = RegistryManager.CreateFromConnectionString(connectionString);
         }
+
         public async Task RegisterDeviceAsync(Guid deviceId)
         {
             if (deviceId == Guid.Empty)

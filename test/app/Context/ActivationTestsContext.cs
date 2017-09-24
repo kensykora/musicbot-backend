@@ -27,7 +27,8 @@ namespace MusicBot.App.Test.Context
             if (useDefaults && databaseIs == null)
                 databaseIs = DeviceRegistrationDb;
 
-            return base.GetStandardActivationCommand(registrationCodeIs, teamIdIs, teamDomainIs, channelIdIs, channelNameIs,
+            return base.GetStandardActivationCommand(registrationCodeIs, teamIdIs, teamDomainIs, channelIdIs,
+                channelNameIs,
                 userIdIs, userNameIs, databaseIs, useDefaults);
         }
     }

@@ -13,7 +13,8 @@ namespace MusicBot.App.Test.Integration
 {
     [Trait("Category", "Integration")]
     [Trait("IntegrationType", "Database")]
-    public class ActivationTests : IClassFixture<ActivationTestsDatabaseIntegrationContext>, IClassFixture<RegistrationTestsContext>
+    public class ActivationTests : IClassFixture<ActivationTestsDatabaseIntegrationContext>,
+        IClassFixture<RegistrationTestsContext>
     {
         private readonly ActivationTestsDatabaseIntegrationContext _ctx;
         private readonly RegistrationTestsContext _regCtx;
@@ -42,8 +43,6 @@ namespace MusicBot.App.Test.Integration
             Assert.Equal(command.TeamId, record.TeamId);
             Assert.Equal(command.UserId, record.UserId);
             Assert.Equal(command.UserName, record.UserName);
-
         }
     }
 }
-

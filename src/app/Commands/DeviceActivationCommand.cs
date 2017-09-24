@@ -11,7 +11,8 @@ namespace MusicBot.App.Commands
     {
         private readonly IDocumentDbRepository<DeviceRegistration> _database;
 
-        public DeviceActivationCommand(string registrationCode, string teamId, string teamDomain, string channelId, string channelName, string userId, string userName, IDocumentDbRepository<DeviceRegistration> database)
+        public DeviceActivationCommand(string registrationCode, string teamId, string teamDomain, string channelId,
+            string channelName, string userId, string userName, IDocumentDbRepository<DeviceRegistration> database)
         {
             TeamId = teamId;
             TeamDomain = teamDomain;
@@ -35,7 +36,7 @@ namespace MusicBot.App.Commands
 
         public override async Task<DeviceActivationCommandResponse> ExecuteAsync()
         {
-            var device =  await _database.FirstOrDefault(x => x.RegistrationCode.Equals(RegistrationCode.ToUpper()));
+            var device = await _database.FirstOrDefault(x => x.RegistrationCode.Equals(RegistrationCode.ToUpper()));
 
             if (device == null)
             {

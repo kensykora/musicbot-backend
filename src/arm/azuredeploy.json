@@ -20,7 +20,8 @@
       "type": "securestring",
       "defaultValue": "",
       "metadata": {
-        "description": "The sasToken required to access _artifactsLocation.  When the template is deployed using the accompanying scripts, a sasToken will be automatically generated"
+        "description":
+          "The sasToken required to access _artifactsLocation.  When the template is deployed using the accompanying scripts, a sasToken will be automatically generated"
       }
     },
     "repoURL": {
@@ -56,7 +57,7 @@
     },
     "betaKey": {
       "type": "securestring",
-      "metadata" : {
+      "metadata": {
         "description": "Beta key for validating registration calls for the time being"
       }
     },
@@ -68,15 +69,19 @@
     }
   },
   "variables": {
-    "deploymentSourceLink": "[concat(parameters('_artifactsLocation'),'/_app-sourcecontrols-', parameters('includeSourceControlDeployment'), '.json', parameters('_artifactsLocationSasToken'))]",
+    "deploymentSourceLink":
+      "[concat(parameters('_artifactsLocation'),'/_app-sourcecontrols-', parameters('includeSourceControlDeployment'), '.json', parameters('_artifactsLocationSasToken'))]",
     "appServiceName": "[concat(parameters('resourcePrefix'), '-APP')]",
     "storageName": "[replace(toLower(concat(parameters('resourcePrefix'), '-STG')),'-','')]",
     "insightsName": "[concat(parameters('resourcePrefix'), '-INS')]",
     "databaseName": "[toLower(concat(parameters('resourcePrefix'),'-DB'))]",
-    "iotHubName":       "[if(empty(parameters('iotHubResourceId')), concat(parameters('resourcePrefix'),'-IOT'),                      substring(parameters('iotHubResourceId'), add(lastIndexOf(parameters('iotHubResourceId'), '/'), 1)))]",
-    "iotHubResourceId": "[if(empty(parameters('iotHubResourceId')), resourceId('Microsoft.Devices/IotHubs', variables('iotHubName')), parameters('iotHubResourceId'))]"
+    "iotHubName":
+      "[if(empty(parameters('iotHubResourceId')), concat(parameters('resourcePrefix'),'-IOT'),                      substring(parameters('iotHubResourceId'), add(lastIndexOf(parameters('iotHubResourceId'), '/'), 1)))]",
+    "iotHubResourceId":
+      "[if(empty(parameters('iotHubResourceId')), resourceId('Microsoft.Devices/IotHubs', variables('iotHubName')), parameters('iotHubResourceId'))]"
   },
-  "resources": [{
+  "resources": [
+    {
       "apiVersion": "2016-07-01",
       "name": "[concat('deployGithub-', parameters('includeSourceControlDeployment'))]",
       "type": "Microsoft.Resources/deployments",
@@ -112,7 +117,8 @@
         "consistencyPolicy": {
           "defaultConsistencyLevel": "Session"
         },
-        "locations": [{
+        "locations": [
+          {
             "locationName": "eastus",
             "failoverPriority": "0"
           },
@@ -164,13 +170,16 @@
       ],
       "properties": {
         "siteConfig": {
-          "appSettings": [{
+          "appSettings": [
+            {
               "name": "AzureWebJobsDashboard",
-              "value": "[concat('DefaultEndpointsProtocol=https;AccountName=',variables('storageName'),';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageName')), '2015-05-01-preview').key1)]"
+              "value":
+                "[concat('DefaultEndpointsProtocol=https;AccountName=',variables('storageName'),';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageName')), '2015-05-01-preview').key1)]"
             },
             {
               "name": "AzureWebJobsStorage",
-              "value": "[concat('DefaultEndpointsProtocol=https;AccountName=',variables('storageName'),';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageName')), '2015-05-01-preview').key1)]"
+              "value":
+                "[concat('DefaultEndpointsProtocol=https;AccountName=',variables('storageName'),';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageName')), '2015-05-01-preview').key1)]"
             },
             {
               "name": "FUNCTIONS_EXTENSION_VERSION",
@@ -178,7 +187,8 @@
             },
             {
               "name": "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING",
-              "value": "[concat('DefaultEndpointsProtocol=https;AccountName=',variables('storageName'),';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageName')), '2015-05-01-preview').key1)]"
+              "value":
+                "[concat('DefaultEndpointsProtocol=https;AccountName=',variables('storageName'),';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageName')), '2015-05-01-preview').key1)]"
             },
             {
               "name": "WEBSITE_CONTENTSHARE",
@@ -190,11 +200,13 @@
             },
             {
               "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
-              "value": "[reference(resourceId('microsoft.insights/components/', variables('insightsName')), '2015-05-01').InstrumentationKey]"
+              "value":
+                "[reference(resourceId('microsoft.insights/components/', variables('insightsName')), '2015-05-01').InstrumentationKey]"
             },
             {
               "name": "DocumentDbKey",
-              "value": "[listKeys(resourceId('Microsoft.DocumentDB/databaseAccounts', variables('databaseName')), '2015-04-08').primaryMasterKey]"
+              "value":
+                "[listKeys(resourceId('Microsoft.DocumentDB/databaseAccounts', variables('databaseName')), '2015-04-08').primaryMasterKey]"
             },
             {
               "name": "DocumentDbServer",
@@ -206,7 +218,8 @@
             },
             {
               "name": "IoTHubConnectionString",
-              "value": "[concat('HostName=', variables('iotHubName'),'.azure-devices.net;SharedAccessKeyName=iothubowner;SharedAccessKey=', listkeys(concat(variables('iotHubResourceId'),'/iothubkeys/iothubowner'), '2017-01-19').primaryKey)]"
+              "value":
+                "[concat('HostName=', variables('iotHubName'),'.azure-devices.net;SharedAccessKeyName=iothubowner;SharedAccessKey=', listkeys(concat(variables('iotHubResourceId'),'/iothubkeys/iothubowner'), '2017-01-19').primaryKey)]"
             },
             {
               "name": "BetaKey",

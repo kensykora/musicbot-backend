@@ -30,7 +30,8 @@ namespace MusicBot.Functions
                 return req.CreateResponse(HttpStatusCode.Unauthorized);
             }
 
-            if (string.IsNullOrWhiteSpace(slackRequest.Text) || slackRequest.Text.Trim().Length != RegisterDeviceCommand.CodeLength)
+            if (string.IsNullOrWhiteSpace(slackRequest.Text) ||
+                slackRequest.Text.Trim().Length != RegisterDeviceCommand.CodeLength)
             {
                 log.Verbose($"Invalid Code {slackRequest.Text?.Trim()}");
                 return req.CreateResponse(HttpStatusCode.BadRequest, new SlackSlashCommandResponse
@@ -43,7 +44,9 @@ namespace MusicBot.Functions
             var code = slackRequest.Text.Trim();
 
             log.Verbose($"Attempting to register code {code}");
-            var command = new DeviceActivationCommand(code, slackRequest.TeamId, slackRequest.TeamDomain, slackRequest.ChannelId, slackRequest.ChannelName, slackRequest.UserId, slackRequest.UserName, ConnectionFactory.Instance.DeviceRegistration);
+            var command = new DeviceActivationCommand(code, slackRequest.TeamId, slackRequest.TeamDomain,
+                slackRequest.ChannelId, slackRequest.ChannelName, slackRequest.UserId, slackRequest.UserName,
+                ConnectionFactory.Instance.DeviceRegistration);
             var result = await command.ExecuteAsync();
 
             switch (result.Status)

@@ -9,7 +9,8 @@
       "value": "no"
     },
     "iotHubResourceId": {
-      "value": "/subscriptions/da864e5f-18ab-4628-ac6e-daba018b82e9/resourceGroups/ksykora-iot/providers/Microsoft.Devices/IotHubs/ksykora-iot-free"
+      "value":
+        "/subscriptions/da864e5f-18ab-4628-ac6e-daba018b82e9/resourceGroups/ksykora-iot/providers/Microsoft.Devices/IotHubs/ksykora-iot-free"
     }
   }
 }

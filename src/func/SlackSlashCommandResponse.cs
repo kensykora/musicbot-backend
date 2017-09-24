@@ -20,9 +20,7 @@ namespace MusicBot.Functions
 
     public enum MessageResponseType
     {
-        [EnumMember(Value = "in_channel")]
-        InChannel,
-        [EnumMember(Value = "ephemeral")]
-        Ephemeral
+        [EnumMember(Value = "in_channel")] InChannel,
+        [EnumMember(Value = "ephemeral")] Ephemeral
     }
 }

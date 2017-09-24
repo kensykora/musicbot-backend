@@ -27,11 +27,13 @@ namespace MusicBot.App
         {
             IoTHubClient = new IoTHub(Config.Instance.IoTHubConnectionString);
 
-            DatabaseClient = new DocumentClient(new Uri(Config.Instance.DocumentDbServer), Config.Instance.DocumentDbKey);
+            DatabaseClient =
+                new DocumentClient(new Uri(Config.Instance.DocumentDbServer), Config.Instance.DocumentDbKey);
 
             CreateDatabaseIfNotExistsAsync().Wait();
 
-            DeviceRegistration = new DocumentDbRepository<DeviceRegistration>(DatabaseClient, Config.Instance.DocumentDbDatabaseId, typeof(DeviceRegistration).Name);
+            DeviceRegistration = new DocumentDbRepository<DeviceRegistration>(DatabaseClient,
+                Config.Instance.DocumentDbDatabaseId, typeof(DeviceRegistration).Name);
         }
 
         public DocumentDbRepository<DeviceRegistration> DeviceRegistration { get; }
@@ -40,13 +42,14 @@ namespace MusicBot.App
         {
             try
             {
-                await DatabaseClient.ReadDatabaseAsync(UriFactory.CreateDatabaseUri(Config.Instance.DocumentDbDatabaseId));
+                await DatabaseClient.ReadDatabaseAsync(
+                    UriFactory.CreateDatabaseUri(Config.Instance.DocumentDbDatabaseId));
             }
             catch (DocumentClientException e)
             {
                 if (e.StatusCode == System.Net.HttpStatusCode.NotFound)
                 {
-                    await DatabaseClient.CreateDatabaseAsync(new Database { Id = Config.Instance.DocumentDbDatabaseId });
+                    await DatabaseClient.CreateDatabaseAsync(new Database {Id = Config.Instance.DocumentDbDatabaseId});
                 }
                 else
                 {

@@ -19,7 +19,7 @@ namespace MusicBot.App
         public string BetaKey => GetValue();
         public string SlackVerificationToken => GetValue();
 
-        private string GetValue([CallerMemberName]string key = "")
+        private string GetValue([CallerMemberName] string key = "")
         {
             var envVal = Environment.GetEnvironmentVariable(key);
             if (!string.IsNullOrEmpty(envVal))
