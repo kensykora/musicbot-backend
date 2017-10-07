@@ -80,6 +80,7 @@ build_script:
 test_script:
   # Unit Tests
   - ps: .\packages\xunit.runner.console.2.2.0\tools\xunit.console.exe "test/app/bin/Release/MusicBot.App.Test.dll" -notrait "Category=Integration"
+  - ps: .\packages\xunit.runner.console.2.2.0\tools\xunit.console.exe "test/func-unit/bin/Release/MusicBot.Functions.Test.dll" -notrait "Category=Integration"
 
   # Database Integration Tests
   - ps: .\test\func\Start-CosmosDb.ps1

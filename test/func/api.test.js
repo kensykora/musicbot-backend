@@ -30,19 +30,6 @@ function getSlackSlashCommandData(command, commandText, valid) {
     };
 }
 
-describe(testType + " - Calling Play", function () {
-
-    var playCall;
-
-    before("Call Play", function () {
-        playCall = chakram.post(pathTo('/play'));
-    });
-
-    it("should return status code 200", function () {
-        return expect(playCall).to.have.status(200);
-    });
-});
-
 describe(testType + " - Creating a Device", function () {
     var deviceCall;
     var id = uuid();
@@ -134,24 +121,40 @@ describe(testType + " - Activate Device", function () {
         });
     });
 
-    it("should 401 if token is incorrect", function () {
-        var call = chakram.post(pathTo('/device/activate'), null, getSlackSlashCommandData('activate', 'ABC123', false));
-        return expect(call).to.have.status(401);
-    });
-
-    it("should 400 if text is missing", function() {
-        var call = chakram.post(pathTo('/device/activate'), null, getSlackSlashCommandData('activate'));
-        return expect(call).to.have.status(400);
-    });
-
-    it("should 400 if code is invalid", function () {
-        var call = chakram.post(pathTo('/device/activate'), null, getSlackSlashCommandData('activate', 'ABC123'));
-        return expect(call).to.have.status(400);
-    });
-
-    it("should successfully be able to be activated", function () {
+    describe("should fail if token is incorrect", function () {
+        var call;
+        before(function() {
+            call = chakram.post(pathTo('/slashcommand'), null, getSlackSlashCommandData('activate', 'ABC123', false));
+        });
         
-        var call = chakram.post(pathTo('/device/activate'), null, getSlackSlashCommandData('activate', registrationCode));
-        return expect(call).to.have.status(200);
+        it("should 401", function() {
+            return expect(call).to.have.status(401);
+        });
     });
+
+    describe("should ephemeral if text is missing", function() {
+        var call = chakram.post(pathTo('/slashcommand'), null, getSlackSlashCommandData('activate'));
+        it("should have 200", function() {
+            return expect(call).to.have.status(200);
+        });
+        it("should contain ephemeral", function() {
+            return expect(call).to.have.json('response_type', 'ephemeral');
+        });
+    });
+
+    // it("should ephemeral if text is missing", function() {
+    //     var call = chakram.post(pathTo('/slashcommand'), null, getSlackSlashCommandData('activate'));
+    //     return expect(call).to.have.status(200);
+    // });
+
+    // it("should ephemeral if code is invalid", function () {
+    //     var call = chakram.post(pathTo('/slashcommand'), null, getSlackSlashCommandData('activate', 'ABC123'));
+    //     return expect(call).to.have.status(400);
+    // });
+
+    // it("should successfully be able to be activated", function () {
+        
+    //     var call = chakram.post(pathTo('/slashcommand'), null, getSlackSlashCommandData('activate', registrationCode));
+    //     return expect(call).to.have.status(200);
+    // });
 });

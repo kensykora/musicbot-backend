@@ -3,10 +3,15 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
 
-namespace MusicBot.Functions
+namespace MusicBot.Functions.Models
 {
     public class SlackSlashCommandRequest
     {
+        public SlackSlashCommandRequest()
+        {
+            
+        }
+
         public SlackSlashCommandRequest(NameValueCollection req)
         {
             Token = req.Get("token");
@@ -19,7 +24,7 @@ namespace MusicBot.Functions
             UserId = req.Get("user_id");
             UserName = req.Get("user_name");
             Command = req.Get("command");
-            Text = req.Get("text");
+            Text = req.Get("text")?.Trim();
             ResponseUrl = req.Get("response_url");
         }
 

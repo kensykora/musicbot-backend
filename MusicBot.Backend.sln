@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26823.1
+VisualStudioVersion = 15.0.26923.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MusicBot.Functions", "src\func\MusicBot.Functions.csproj", "{873C19BC-5DF2-4BB2-AD46-E96C048BCF9F}"
 EndProject
@@ -20,6 +20,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Test", "Test", "{00A39AD5-5552-4E0F-B1EF-D0E7BCEECF7C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MusicBot.App.Test", "test\app\MusicBot.App.Test.csproj", "{2E3DF5C2-8A38-4A03-86D7-8D463C917E47}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MusicBot.Functions.Test", "test\func-unit\MusicBot.Functions.Test.csproj", "{A048A1AB-4E39-4A12-9A09-B71785C3AB6E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -43,12 +45,17 @@ Global
 		{2E3DF5C2-8A38-4A03-86D7-8D463C917E47}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2E3DF5C2-8A38-4A03-86D7-8D463C917E47}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2E3DF5C2-8A38-4A03-86D7-8D463C917E47}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A048A1AB-4E39-4A12-9A09-B71785C3AB6E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A048A1AB-4E39-4A12-9A09-B71785C3AB6E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A048A1AB-4E39-4A12-9A09-B71785C3AB6E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A048A1AB-4E39-4A12-9A09-B71785C3AB6E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{2E3DF5C2-8A38-4A03-86D7-8D463C917E47} = {00A39AD5-5552-4E0F-B1EF-D0E7BCEECF7C}
+		{A048A1AB-4E39-4A12-9A09-B71785C3AB6E} = {00A39AD5-5552-4E0F-B1EF-D0E7BCEECF7C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {6FE80FD2-CF73-4A4C-8AF1-54A0E9B228CC}
