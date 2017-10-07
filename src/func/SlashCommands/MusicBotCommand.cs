@@ -11,26 +11,22 @@ namespace MusicBot.Functions.SlashCommands
 {
     public abstract class MusicBotCommand
     {
-        public abstract string ExpectedCommandType { get; }
+        protected MusicBotCommand()
+        {
+            
+        }
 
         protected MusicBotCommand(SlackSlashCommandRequest req)
         {
             Request = req;
-
-            CommandType = req.Command;
             Args = req.Text?.Split(' ');
-
-            if (!ExpectedCommandType.Equals(CommandType, StringComparison.OrdinalIgnoreCase))
-            {
-                throw new ArgumentException("Incorrect command type for this command");
-            }
         }
 
         public abstract Task<SlackSlashCommandResponse> Execute(TraceWriter log);
 
         public SlackSlashCommandRequest Request { get; }
 
-        public string CommandType { get; }
+        public abstract string CommandType { get; }
 
         public string[] Args { get; }
     }

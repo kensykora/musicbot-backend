@@ -11,13 +11,13 @@ using MusicBot.Functions.Test.Extensions;
 
 namespace MusicBot.Functions.Test.Context
 {
-    public class SlashCommandTestsContext
+    public class SlashCommandTestsContext : BaseTestsContext
     {
         public const string StandardSlackPath = SlashCommand.Path;
 
         public string StandardToken => Config.Instance.SlackVerificationToken;
 
-        public const string InvalidToken = "DEF234";
+        public string InvalidToken => "DEF234";
 
         public SlackSlashCommandRequest StandardSlackSlashCommandRequest => new SlackSlashCommandRequest()
         {
@@ -33,12 +33,17 @@ namespace MusicBot.Functions.Test.Context
             ResponseUrl = "https://hooks.slack.com/commands/1234/5678"
         };
 
-        public HttpRequestMessage GetStandardSlackHttpRequestMessage()
+        public HttpRequestMessage GetStandardSlackHttpRequestMessage(SlackSlashCommandRequest requestIs = null, bool useDefaults = true)
         {
+            if (requestIs == null && useDefaults)
+            {
+                requestIs = StandardSlackSlashCommandRequest;
+            }
+
             var result =
                 new HttpRequestMessage(HttpMethod.Post, new Uri("https://apihost/api/" + StandardSlackPath))
                 {
-                    Content = StandardSlackSlashCommandRequest.GetFormContent(),
+                    Content = requestIs.GetFormContent(),
                 };
             result.SetConfiguration(new HttpConfiguration());
 

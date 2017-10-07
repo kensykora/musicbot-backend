@@ -9,29 +9,30 @@ namespace MusicBot.Functions.SlashCommands
 {
     public class MusicBotCommandFactory
     {
-        private static readonly Dictionary<string, Type> _registeredCommands = GetEnumerableOfType<MusicBotCommand>();
+        private static readonly Dictionary<string, Type> RegisteredCommands = GetEnumerableOfType<MusicBotCommand>();
 
         public static MusicBotCommand GetCommand(SlackSlashCommandRequest req)
         {
-            var key = _registeredCommands.Keys.FirstOrDefault(x =>
-                x.Equals(req.Command, StringComparison.OrdinalIgnoreCase));
+            var key = RegisteredCommands.Keys.FirstOrDefault(x =>
+                x.Equals(req.Text?.Split(' ').FirstOrDefault(), StringComparison.OrdinalIgnoreCase));
 
             if (key == null)
             {
-                throw new ApplicationException("Unable to determine command type of request");
+                return null;
             }
 
-            return (MusicBotCommand)Activator.CreateInstance(_registeredCommands[key], req);
+            return (MusicBotCommand)Activator.CreateInstance(RegisteredCommands[key], req);
         }
 
         public static Dictionary<string, Type> GetEnumerableOfType<T>() where T : class
         {
             var result = new Dictionary<string, Type>();
-            foreach (Type type in
+            foreach (var type in
                 Assembly.GetAssembly(typeof(T)).GetTypes()
                 .Where(x => x.IsClass && !x.IsAbstract && x.IsSubclassOf(typeof(T))))
             {
-                result.Add(type.GetMethod(nameof(MusicBotCommand.ExpectedCommandType)).Invoke(null, null).ToString(), type);
+                var instance = (MusicBotCommand)Activator.CreateInstance(type);
+                result.Add(instance.CommandType, type);
             }
 
             return result;

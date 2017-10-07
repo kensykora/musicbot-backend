@@ -7,6 +7,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 
 using Microsoft.Azure.WebJobs;
+using Microsoft.Azure.WebJobs.Extensions;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Azure.WebJobs.Host;
 
@@ -26,8 +27,12 @@ namespace MusicBot.Functions
         [FunctionName(Path)]
         public static async Task<HttpResponseMessage> Run(
             [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = Path)] HttpRequestMessage req,
-            TraceWriter log)
+            TraceWriter log = null)
         {
+            if (log == null)
+            {
+                log = new TraceMonitor();
+            }
             var slackRequest = new SlackSlashCommandRequest(await req.Content.ReadAsFormDataAsync());
 
             if (slackRequest.Token != Config.Instance.SlackVerificationToken)
@@ -36,9 +41,9 @@ namespace MusicBot.Functions
                 return req.CreateResponse(HttpStatusCode.Unauthorized);
             }
 
-            if (string.IsNullOrWhiteSpace(slackRequest.Text))
+            if (string.IsNullOrWhiteSpace(slackRequest.Command))
             {
-                log.Verbose($"Invalid Command {slackRequest.Text}");
+                log.Verbose($"Invalid Command {slackRequest.Command}");
                 return req.CreateResponse(HttpStatusCode.OK, new SlackSlashCommandResponse
                 {
                     ResponseType = MessageResponseType.Ephemeral,
@@ -49,14 +54,27 @@ namespace MusicBot.Functions
             try
             {
                 var command = MusicBotCommandFactory.GetCommand(slackRequest);
+                if (command == null)
+                {
+                    return req.CreateResponse(HttpStatusCode.OK, new SlackSlashCommandResponse()
+                    {
+                        Status = MessageResponseStatus.Failure,
+                        SubStatus = MessageResponseSubStatus.UnknownCommand,
+                        ResponseType = MessageResponseType.Ephemeral,
+                        Text = $"Unknown command {slackRequest.Text?.Split(' ').FirstOrDefault()}".Trim()
+                    });
+                }
                 return req.CreateResponse(await command.Execute(log));
             }
-            catch (InvalidCommandException ex)
+            catch (Exception ex)
             {
+                log.Error("Unexpected Error", ex);
                 return req.CreateResponse(HttpStatusCode.OK, new SlackSlashCommandResponse
                 {
                     ResponseType = MessageResponseType.Ephemeral,
-                    Text = ex.Message
+                    Text = "Oops, an unexpected error occurred. We'll look into it.",
+                    Status = MessageResponseStatus.Failure,
+                    SubStatus = MessageResponseSubStatus.Internal
                 });
             }
 

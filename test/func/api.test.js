@@ -22,8 +22,8 @@ function getSlackSlashCommandData(command, commandText, valid) {
             'channel_name': 'test',
             'user_id': 'U2147483697',
             'user_name': 'Steve',
-            'command': command,
-            'text': commandText,
+            'command': '/mb',
+            'text': command + ' ' + commandText,
             'response_url': 'https://hooks.slack.com/commands/1234/5678'
 
         }
@@ -132,29 +132,99 @@ describe(testType + " - Activate Device", function () {
         });
     });
 
-    describe("should ephemeral if text is missing", function() {
-        var call = chakram.post(pathTo('/slashcommand'), null, getSlackSlashCommandData('activate'));
+    describe("should fail if text is missing", function() {
+        var call;
+        before(function() {
+            call = chakram.post(pathTo('/slashcommand'), null, getSlackSlashCommandData('activate'));
+        });
         it("should have 200", function() {
             return expect(call).to.have.status(200);
         });
-        it("should contain ephemeral", function() {
+        it("should be ephemeral", function() {
             return expect(call).to.have.json('response_type', 'ephemeral');
+        });
+        it("should have failed", function() {
+            return expect(call).to.have.json('status', 'failure');
+        });
+        it("from a validation error", function() {
+            return expect(call).to.have.json('sub_status', 'validation');
         });
     });
 
-    // it("should ephemeral if text is missing", function() {
-    //     var call = chakram.post(pathTo('/slashcommand'), null, getSlackSlashCommandData('activate'));
-    //     return expect(call).to.have.status(200);
-    // });
+    describe("should fail if code is incorrect length", function() {
+        var call;
+        before(function() {
+            call = chakram.post(pathTo('/slashcommand'), null, getSlackSlashCommandData('activate', 'ABC12345598347FJ'));
+        });
+        it("should have 200", function() {
+            return expect(call).to.have.status(200);
+        });
+        it("should be ephemeral", function() {
+            return expect(call).to.have.json('response_type', 'ephemeral');
+        });
+        it("should have failed", function() {
+            return expect(call).to.have.json('status', 'failure');
+        });
+        it("from a validation error", function() {
+            return expect(call).to.have.json('sub_status', 'validation');
+        });
+    });
 
-    // it("should ephemeral if code is invalid", function () {
-    //     var call = chakram.post(pathTo('/slashcommand'), null, getSlackSlashCommandData('activate', 'ABC123'));
-    //     return expect(call).to.have.status(400);
-    // });
+    describe("should fail if code is invalid", function() {
+        var call;
+        before(function() {
+            call = chakram.post(pathTo('/slashcommand'), null, getSlackSlashCommandData('activate', 'ABC123'));
+        });
+        it("should have 200", function() {
+            return expect(call).to.have.status(200);
+        });
+        it("should be ephemeral", function() {
+            return expect(call).to.have.json('response_type', 'ephemeral');
+        });
+        it("should have failed", function() {
+            return expect(call).to.have.json('status', 'failure');
+        });
+        it("from a not found error", function() {
+            return expect(call).to.have.json('sub_status', 'not_found');
+        });
+    });
 
-    // it("should successfully be able to be activated", function () {
-        
-    //     var call = chakram.post(pathTo('/slashcommand'), null, getSlackSlashCommandData('activate', registrationCode));
-    //     return expect(call).to.have.status(200);
-    // });
+    describe("should activate valid code", function() {
+        var call;
+        before(function() {
+            call = chakram.post(pathTo('/slashcommand'), null, getSlackSlashCommandData('activate', registrationCode));
+        });
+        it("should have 200", function() {
+            return expect(call).to.have.status(200);
+        });
+        it("should be in channel", function() {
+            return expect(call).to.have.json('response_type', 'in_channel');
+        });
+        it("should have succeeded", function() {
+            return expect(call).to.have.json('status', 'success');
+        });
+    });
+});
+
+describe("should handle unknown commands", function() {
+    var call;
+    before(function() {
+        call = chakram.post(pathTo('/slashcommand'), null, getSlackSlashCommandData('unknown-command'));
+    });
+
+    it("should have 200", function() {
+        return expect(call).to.have.status(200);
+    });
+
+    it("should be ephemeral", function() {
+        return expect(call).to.have.json('response_type', 'ephemeral');
+    });
+
+    it("should be error", function() {
+        return expect(call).to.have.json('status', 'failure');
+    });
+
+    it("should be unknown command", function() {
+        return expect(call).to.have.json('sub_status', 'unknown_command');
+    });
 });

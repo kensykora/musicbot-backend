@@ -27,18 +27,34 @@ namespace MusicBot.Functions.Test
         }
 
         [Fact]
-        public async Task RunFunction_CreatesEphemeralResponse_WithInvalidCommand()
+        public async Task SlashCommand_CreatesEphemeralResponse_WithInvalidCommand()
         {
             //arrange
             var req = _ctx.GetStandardSlackHttpRequestMessage();
 
             // act
-            var response = await SlashCommand.Run(req, new TraceMonitor());
+            var response = await SlashCommand.Run(req);
             var data = await response.ReserializeContent<SlackSlashCommandResponse>();
 
             // assert
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
             Assert.Equal(MessageResponseType.Ephemeral, data.ResponseType);
+        }
+
+        [Fact]
+        public async Task SlashCommand_ReturnsUnauthorized_WithInvalidCode()
+        {
+            // arrange
+            var data = _ctx.StandardSlackSlashCommandRequest;
+            data.Token = _ctx.InvalidToken;
+            var req = _ctx.GetStandardSlackHttpRequestMessage(requestIs: data);
+
+            // act
+            var response = await SlashCommand.Run(req);
+
+            // assert
+            Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+
         }
     }
 }

@@ -12,11 +12,15 @@ namespace MusicBot.Functions.SlashCommands
 {
     public class PlayCommand : MusicBotCommand
     {
+        public PlayCommand()
+        {
+            
+        }
+
         public PlayCommand(SlackSlashCommandRequest req) : base(req)
         {
         }
 
-        public override string ExpectedCommandType => "play";
         public override Task<SlackSlashCommandResponse> Execute(TraceWriter log)
         {
             return Task.FromResult(new SlackSlashCommandResponse()
@@ -25,5 +29,7 @@ namespace MusicBot.Functions.SlashCommands
                 Text = "Now Playing"
             });
         }
+
+        public override string CommandType => "play";
     }
 }
